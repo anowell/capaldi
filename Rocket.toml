@@ -1,0 +1,2 @@
+[default.databases.sqlite_capaldi]
+url = "sqlite://db/db.sqlite"

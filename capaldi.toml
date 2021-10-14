@@ -1,0 +1,5 @@
+
+
+[projects]
+jira_query = "PROJECT = CGTS and type = Epic"
+
