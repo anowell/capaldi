@@ -1,18 +1,18 @@
 use crate::models::*;
-use crate::{Result, Db};
+use crate::{Db, Result};
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
 pub struct Project {
     id: i64,
     name: String,
-    jira: Option<String>,
-    category: Option<String>,
+    category_id: i64,
     is_closed: bool,
+    jira: Option<String>,
+    release: Option<String>,
 }
-
 
 // #[rocket::get("/projects?<only_active>")]
 // async fn list_projects(db: Connection<Db>, only_active: Option<bool>) -> Result<Json<Vec<Project>>> {

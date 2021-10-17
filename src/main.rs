@@ -1,21 +1,21 @@
-#![allow(unused_assignments)]
+#![allow(unused_assignments, unused_imports)]
 
-use rocket::fairing::{self, AdHoc};
-use rocket::serde::{json::Json, Serialize};
-use rocket::response::{Debug, status::Created};
+// use rocket::fairing::{self, AdHoc};
+// use rocket::response::{status::Created, Debug};
 use rocket::serde::json::{json, Value};
-use rocket_db_pools::{sqlx, Database, sqlx::SqlitePool};
+use rocket::serde::{json::Json, Serialize};
+use rocket_db_pools::{sqlx, sqlx::SqlitePool, Database};
 
 #[derive(Database)]
 #[database("sqlite_capaldi")]
 pub struct Db(SqlitePool);
 
-
+pub mod auth;
 pub mod models;
 pub mod routes;
+pub mod util;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
-
 
 #[derive(Serialize)]
 struct Health {
@@ -26,7 +26,7 @@ struct Health {
 fn health() -> Json<Health> {
     Json(Health {
         status: "pass".to_string(),
-   })
+    })
 }
 
 #[rocket::catch(404)]

@@ -1,42 +1,36 @@
 use crate::models::*;
-use crate::{Result, Db};
+use crate::models::{allocation::Allocation, group::Group, user::User};
+use crate::util::NaiveDateForm;
+use crate::{Db, Result};
+use futures::TryFutureExt;
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
-use serde::{Serialize, Deserialize};
-use crate::models::{user::User, group::Group, allocation::Allocation};
-use futures::TryFutureExt;
+use serde::{Deserialize, Serialize};
 
-#[rocket::get("/groups")]
+#[rocket::get("/")]
 async fn list_groups(user: User, mut db: Connection<Db>) -> Result<Json<Vec<Group>>> {
-    group::query_user_groups(&user, &mut db).map_ok(Json).await
+    group::get_user_groups(&user, &mut db).map_ok(Json).await
 }
 
-// #[rocket::get("/groups")]
-// async fn list_groups(user: User, mut db: Connection<Db>) -> Result<Json<Vec<Group>>> {
-//     let groups = sqlx::query_as!(Group, "SELECT * FROM groups WHERE owner_id = ?", user.id)
-//         .fetch_all(&mut *db)
-//         .await?;
-//     Ok(Json(groups))
-// }
-
-#[rocket::get("/groups/<id>")]
+#[rocket::get("/<id>")]
 async fn get_group(user: User, mut db: Connection<Db>, id: i64) -> Result<Json<Group>> {
-    let group = sqlx::query_as!(Group, "SELECT * from groups where id = ? AND owner_id = ?", id, user.id)
-        .fetch_one(&mut *db)
-        .await?;
-    Ok(Json(group))
+    group::get_group(&user, &mut db, id).map_ok(Json).await
 }
 
-#[rocket::get("/groups/<id>/allocations?<start_at>")]
-async fn get_group_allocations(user: User, mut db: Connection<Db>, id: i64, start_at:Option<String>) -> Result<Json<Vec<Allocation>>> {
-    // consider implementing FromForm on a NaiveDateForm
-    // e.g. https://stackoverflow.com/questions/55029850/how-to-use-a-date-in-the-url-with-rocket-rs
+#[rocket::get("/<id>/allocations?<from>")]
+async fn get_group_allocations(
+    user: User,
+    mut db: Connection<Db>,
+    id: i64,
+    from: Option<NaiveDateForm>,
+) -> Result<Json<Vec<Allocation>>> {
+    // Ensure group is owned by user -- todo: FORWARD or 404 instead of returning an error
+    let _ = group::get_group(&user, &mut db, id).await?;
 
-    // let group = get_group(user, db, id).await?;
-    
-    todo!("implement get_group_allocations");
+    allocation::get_group_allocations(&mut db, id, from.map(|d| d.0))
+        .map_ok(Json)
+        .await
 }
-
 
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![list_groups, get_group, get_group_allocations]

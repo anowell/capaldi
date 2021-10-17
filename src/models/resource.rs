@@ -1,17 +1,18 @@
 use crate::models::*;
-use crate::{Result, Db};
+use crate::{Db, Result};
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
 pub struct Resource {
     pub id: i64,
     group_id: i64,
     name: String,
+    role_id: i64,
+    is_fte: bool,
     // is_deleted: bool,
 }
-
 
 // #[rocket::get("/resources")]
 // /// Lists all resources in users groups

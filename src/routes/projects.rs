@@ -1,9 +1,7 @@
 use crate::models::*;
-use crate::{Result, Db};
+// use crate::{Db, Result};
 use rocket::serde::json::Json;
-use rocket_db_pools::{sqlx, Connection};
-use serde::{Serialize, Deserialize};
-
+// use rocket_db_pools::{sqlx, Connection};
 
 // #[rocket::get("/projects?<only_active>")]
 // async fn list_projects(db: Connection<Db>, only_active: Option<bool>) -> Result<Json<Vec<Project>>> {

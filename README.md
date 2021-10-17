@@ -3,6 +3,20 @@ Capaldi
 
 CAPacity ALlocation & DIagrams
 
+Note: allocation categories are generic, but generally thought of as areas like: product enhancements, reactive work, complexity management, etc)
+
+Capaldi aims to be able to quickly answer these questions:
+- Individual
+  - How is the individuals time committed across allocation categories?
+- Team
+  - How are the team's resources distributed across allocation categories?
+  - How are the team's resources distributed across projects and releases?
+- Org
+  - How are the org's resources distributed across allocation categories?
+  - How are the org's resources distributed across projects and releases?
+  - How are the org's resources distributed over various time intervals (e.g. quarters)?
+  - How are the org's resources distributed w.r.t. resource attributes such as role or FTE status?
+
 
 Config:
 - Jira epic query
@@ -40,6 +54,8 @@ Starting capaldi backend:
 ```shell
 source .env
 cargo run
-curl -X POST -b ~/cookies.txt localhost:8000/session/login
-curl -b ~/cookies.txt localhost:8000/groups
+
+# in a separate console
+just login
+just curl /groups
 ```
