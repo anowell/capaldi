@@ -49,13 +49,20 @@ source .env
 cargo c
 ```
 
-Starting capaldi backend:
+Starting capaldi dev server:
 
 ```shell
-source .env
-cargo run
+just dev-server
 
 # in a separate console
 just login
 just curl /groups
+```
+
+Starting capaldi frontend:
+
+```shell
+just dev-client
+
+# Open localhost:8000 in browser
 ```

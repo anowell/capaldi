@@ -7,7 +7,7 @@ use rocket::request::{self, FromRequest, Request};
 use rocket::serde::json::{self, Json};
 use rocket_db_pools::{sqlx, Connection};
 
-#[rocket::post("/login")]
+#[rocket::post("/")]
 async fn post_login(jar: &CookieJar<'_>, mut db: Connection<Db>) -> Result<Json<User>> {
     // if login.email == "anowell@gmail.com" && login.password == "password" {
     let user = sqlx::query_as!(User, "SELECT id, email FROM users WHERE id = ?", 1)
@@ -23,7 +23,7 @@ async fn post_login(jar: &CookieJar<'_>, mut db: Connection<Db>) -> Result<Json<
     // }
 }
 
-#[rocket::post("/logout")]
+#[rocket::delete("/")]
 fn logout(jar: &CookieJar<'_>) {
     jar.remove_private(Cookie::named("user"));
 }

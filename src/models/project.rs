@@ -14,32 +14,23 @@ pub struct Project {
     release: Option<String>,
 }
 
-// #[rocket::get("/projects?<only_active>")]
-// async fn list_projects(db: Connection<Db>, only_active: Option<bool>) -> Result<Json<Vec<Project>>> {
-//     let only_active = only_active.unwrap_or(true);
-//     let projects: Vec<Project> = db.run(move |conn| {
-//         use crate::schema::projects;
-//         if only_active {
-//             projects::table
-//                 .filter(projects::is_closed.eq(false))
-//                 .load::<Project>(conn)
-//         } else {
-//             projects::table.load::<Project>(conn)
-//         }
-//     }).await?;
-//     Ok(Json(projects))
-// }
+pub async fn get_projects(db: &mut Connection<Db>, show_closed: bool) -> Result<Vec<Project>> {
+    let projects = sqlx::query_as!(
+        Project,
+        "SELECT * FROM projects WHERE is_closed = ?",
+        show_closed
+    )
+    .fetch_all(&mut **db)
+    .await?;
+    Ok(projects)
+}
 
-// #[rocket::get("/projects/<id>")]
-// async fn get_project(db: Db, id: i32) -> Result<Json<Project>> {
-//     let project: Project = db.run(move |conn| {
-//         use crate::schema::projects;
-//         projects::table
-//             .filter(projects::id.eq(id))
-//             .first::<Project>(conn)
-//     }).await?;
-//     Ok(Json(project))
-// }
+async fn get_project(db: &mut Connection<Db>, id: i32) -> Result<Project> {
+    let project = sqlx::query_as!(Project, "SELECT * FROM projects WHERE id = ?", id)
+        .fetch_one(&mut **db)
+        .await?;
+    Ok(project)
+}
 
 // #[rocket::post("/projects")]
 // // repopulate project list (active and closed)

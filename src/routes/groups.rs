@@ -4,7 +4,7 @@ use crate::util::NaiveDateForm;
 use crate::{Db, Result};
 use futures::TryFutureExt;
 use rocket::serde::json::Json;
-use rocket_db_pools::{sqlx, Connection};
+use rocket_db_pools::Connection;
 use serde::{Deserialize, Serialize};
 
 #[rocket::get("/")]

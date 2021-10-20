@@ -30,3 +30,9 @@ logout:
 
 curl PATH *ARGS:
   curl -b cookies.txt -c cookies.txt {{ARGS}} localhost:8000{{PATH}}
+
+dev-server:
+  cargo watch --why --ignore frontend -x run
+
+dev-client:
+  cd frontend && npm run dev

@@ -2,6 +2,7 @@
 
 // use rocket::fairing::{self, AdHoc};
 // use rocket::response::{status::Created, Debug};
+use rocket::fs::{relative, FileServer};
 use rocket::serde::json::{json, Value};
 use rocket::serde::{json::Json, Serialize};
 use rocket_db_pools::{sqlx, sqlx::SqlitePool, Database};
@@ -54,7 +55,9 @@ fn rocket() -> _ {
     rocket::build()
         .attach(Db::init())
         .mount("/", rocket::routes![health])
-        .mount("/session", routes::session::routes())
-        .mount("/groups", routes::groups::routes())
+        .mount("/api/session", routes::session::routes())
+        .mount("/api/groups", routes::groups::routes())
+        .mount("/api/projects", routes::projects::routes())
+        .mount("/", FileServer::from(relative!("frontend/public")))
         .register("/", rocket::catchers![not_found, internal_error])
 }

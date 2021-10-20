@@ -1,23 +1,19 @@
-use crate::models::*;
-// use crate::{Db, Result};
+use crate::models::{project::Project, *};
+use crate::{Db, Result};
+use futures::TryFutureExt;
 use rocket::serde::json::Json;
-// use rocket_db_pools::{sqlx, Connection};
+use rocket_db_pools::Connection;
 
-// #[rocket::get("/projects?<only_active>")]
-// async fn list_projects(db: Connection<Db>, only_active: Option<bool>) -> Result<Json<Vec<Project>>> {
-//     let only_active = only_active.unwrap_or(true);
-//     let projects: Vec<Project> = db.run(move |conn| {
-//         use crate::schema::projects;
-//         if only_active {
-//             projects::table
-//                 .filter(projects::is_closed.eq(false))
-//                 .load::<Project>(conn)
-//         } else {
-//             projects::table.load::<Project>(conn)
-//         }
-//     }).await?;
-//     Ok(Json(projects))
-// }
+#[rocket::get("/?<show_closed>")]
+async fn list_projects(
+    mut db: Connection<Db>,
+    show_closed: Option<bool>,
+) -> Result<Json<Vec<Project>>> {
+    let show_closed = show_closed.unwrap_or(false);
+    project::get_projects(&mut db, show_closed)
+        .map_ok(Json)
+        .await
+}
 
 // #[rocket::get("/projects/<id>")]
 // async fn get_project(db: Db, id: i32) -> Result<Json<Project>> {
@@ -35,3 +31,7 @@ use rocket::serde::json::Json;
 // fn sync_projects() -> Json<Project> {
 //     todo!("implement update_projects");
 // }
+
+pub fn routes() -> Vec<rocket::Route> {
+    rocket::routes![list_projects]
+}
