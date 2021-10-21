@@ -66,3 +66,23 @@ just dev-client
 
 # Open localhost:8000 in browser
 ```
+
+
+### Tech Stack
+
+Backend (Rust):
+
+- [Rocket](https://rocket.rs/) - Web Framework
+- [SqlX](https://github.com/launchbadge/sqlx) - SQL Toolkit
+- [SQLite](https://sqlite.org) - DB
+
+Frontend (TypeScript):
+- [Svelte](https://svelte.dev/) - Web Framework
+- [Bulma](https://bulma.io/) - CSS Framework
+- [Ionicons](https://ionic.io/ionicons/v4) - Icons
+- [Svelte-query](https://sveltequery.vercel.app/) - Data Syncronization
+- [Axios](https://axios-http.com/) - HTTP Client
+
+Tool:
+- [Just](https://github.com/casey/just) - Task runner
+- [Rollup.js](https://www.rollupjs.org) - Bundler

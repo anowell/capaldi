@@ -1,22 +1,37 @@
 <script lang="ts">
     import type { AxiosError } from "axios";
-    import { Project, getProjects } from '../api/projects';
-    import { useQuery } from '@sveltestack/svelte-query';
+    import { Project, getProjects } from "../api/projects";
+    import { useQuery } from "@sveltestack/svelte-query";
 
-    const projectsResult = useQuery<Project[], AxiosError>('projects', getProjects);
+    const projectsResult = useQuery<Project[], AxiosError>(
+        "projects",
+        getProjects
+    );
 </script>
 
 <div>
-    <h1>Projects</h1>
-    {#if $projectsResult.status === 'loading'}
-        <span>Loading...</span>
-    {:else if $projectsResult.status === 'error'}
-        <span>Error: {$projectsResult.error.message}</span>
+    {#if $projectsResult.status === "loading"}
+        <p>Loading projects...</p>
+    {:else if $projectsResult.status === "error"}
+        <p>Error fetching projects: {$projectsResult.error.message}</p>
     {:else}
-        <div>
-            {#each $projectsResult.data as project}
-              <p>{project.name}</p>
-            {/each}
-        </div>
+        <table class="table is-hoverable is-striped">
+            <thead>
+                <tr>
+                    <td>&nbsp;</td>
+                    <th>Project</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each $projectsResult.data as project}
+                    <tr>
+                        <td><a href="#"><ion-icon name="create"></ion-icon></a></td>
+                        <td>{project.name}</td>
+                        <td>{project.category_id}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
     {/if}
 </div>

@@ -14,45 +14,72 @@
     console.log(`logged in as ${user.email}`);
   }
 
+  function navProps(linkProps) {
+    if (linkProps.isPartiallyCurrent) {
+      return { 'class': 'navbar-item is-active' }
+    } else {
+      return { 'class': 'navbar-item' }
+    }
+  }
   const queryClient = new QueryClient();
 </script>
 
 
 
 <QueryClientProvider client={queryClient}>
-  <main>
-    {#if loggedIn}
       <Router>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="projects">Projects</Link>
-          <Link to="groups">Groups</Link>
+
+        <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+          <div class="container">
+          <div class="navbar-brand">
+            <Link to="/" class="navbar-item">
+              <img src="/tardis-logo.png" alt="logo">
+              <span class="title">Capaldi</span>
+            </Link>
+          </div>
+
+          <div id="navbarBasicExample" class="navbar-menu">
+            {#if loggedIn}
+            <div class="navbar-start">
+              <Link to="groups" getProps={navProps}>Team</Link>
+              <Link to="projects" getProps={navProps}>Projects</Link>
+            </div>
+            {/if}
+
+            {#if loggedIn}
+            <div class="navbar-end">
+              <div class="navbar-item">
+                <div class="buttons">
+                  <a class='button is-light' href="/"><ion-icon name="log-out"></ion-icon> &nbsp; Logout</a>
+                </div>
+              </div>
+            </div>
+            {/if}
         </nav>
-        <div>
-          <Route path="/">
-            Home
-          </Route>
-          <Route path="projects" component={Projects} />
-          <Route path="groups" component={Groups} />
-        </div>
+        <section class="section">
+        <main class="container">
+          {#if loggedIn}
+          <Route path="projects"><Projects /></Route>
+          <Route path="groups"><Groups /></Route>
+          {:else}
+          <div class="column is-half is-offset-one-quarter">
+            <form class="box" on:submit|preventDefault={login}>
+              <div class="field">
+                <label for="email" class="label">Email</label>
+                <div class="control">
+                  <input id="email" class="input" type="email" placeholder="e.g. alice@example.com">
+                </div>
+              </div>
+
+              <button type="submit" class='button is-primary'><ion-icon name="log-in"></ion-icon> &nbsp; Sign in</button>
+            </form>
+          </div>
+          {/if}
+        </main>
+      </section>
       </Router>
-      {:else}
-        <button on:click={login}>Login</button>
-      {/if}
-    </main>  
 </QueryClientProvider>
 
 <style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-  }
 
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
-  }
 </style>

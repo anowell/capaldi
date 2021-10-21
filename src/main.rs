@@ -1,11 +1,11 @@
 #![allow(unused_assignments, unused_imports)]
 
-// use rocket::fairing::{self, AdHoc};
-// use rocket::response::{status::Created, Debug};
 use rocket::fs::{relative, FileServer};
 use rocket::serde::json::{json, Value};
 use rocket::serde::{json::Json, Serialize};
 use rocket_db_pools::{sqlx, sqlx::SqlitePool, Database};
+use rocket::fs::NamedFile;
+use std::path::{Path, PathBuf};
 
 #[derive(Database)]
 #[database("sqlite_capaldi")]
@@ -50,6 +50,11 @@ fn internal_error() -> Value {
     })
 }
 
+#[rocket::get("/<_file..>", rank = 11)]  
+async fn spa_fallback(_file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new(relative!("frontend/public/index.html"))).await.ok()
+}
+
 #[rocket::launch]
 fn rocket() -> _ {
     rocket::build()
@@ -59,5 +64,6 @@ fn rocket() -> _ {
         .mount("/api/groups", routes::groups::routes())
         .mount("/api/projects", routes::projects::routes())
         .mount("/", FileServer::from(relative!("frontend/public")))
+        .mount("/", rocket::routes![spa_fallback])
         .register("/", rocket::catchers![not_found, internal_error])
 }
