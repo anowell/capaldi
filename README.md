@@ -25,11 +25,11 @@ Config:
 
 ### Dev Setup
 
-Install sqlite, just, and sqlx (w/ sqlite feature)
+Install sqlite, just, cargo-watch, and sqlx (w/ sqlite feature)
 
 ```shell
 apt install sqlite3 libsqlite-dev
-cargo install just
+cargo install just cargo-watch
 cargo install sqlx --no-default-features --features sqlite
 ```
 
@@ -67,7 +67,6 @@ just dev-client
 # Open localhost:8000 in browser
 ```
 
-
 ### Tech Stack
 
 Backend (Rust):
@@ -86,3 +85,15 @@ Frontend (TypeScript):
 Tool:
 - [Just](https://github.com/casey/just) - Task runner
 - [Rollup.js](https://www.rollupjs.org) - Bundler
+
+### Design Philosophy
+
+Design decisions are guided by a few principles:
+
+- Outcomes before features
+- Opinionated before flexible
+- Simple before feature-rich
+- Fast before shiny
+- Delightful before powerful
+
+While the things on the right are desirable, the things on the left take precedence.

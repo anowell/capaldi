@@ -2,11 +2,13 @@
     import type { AxiosError } from "axios";
     import { Group, getGroups } from '../api/groups';
     import { useQuery } from '@sveltestack/svelte-query';
+    import Allocation from '../components/Allocation.svelte';
 
     const groupsResult = useQuery<Group[], AxiosError>('groups', getGroups);
 </script>
 
 <div>
+    <Allocation />
     {#if $groupsResult.status === 'loading'}
         <span>Loading...</span>
     {:else if $groupsResult.status === 'error'}

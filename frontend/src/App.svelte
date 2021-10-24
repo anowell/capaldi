@@ -81,5 +81,4 @@
 </QueryClientProvider>
 
 <style>
-
 </style>
