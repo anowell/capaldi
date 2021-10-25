@@ -59,8 +59,9 @@
         <section class="section">
         <main class="container">
           {#if loggedIn}
-          <Route path="projects"><Projects /></Route>
+          <Route path="projects" component={Projects}></Route>
           <Route path="groups"><Groups /></Route>
+          <Route path="resources/:id">TODO</Route>
           {:else}
           <div class="column is-half is-offset-one-quarter">
             <form class="box" on:submit|preventDefault={login}>

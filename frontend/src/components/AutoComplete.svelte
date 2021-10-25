@@ -136,12 +136,12 @@
         <label for={id} class="label">{label}</label>
     {/if}
     <div class="control" id={`${id}-control`}>
-        <div class="dropdown" class:is-active={is_active}>
+        <div class="dropdown" class:is-active={is_active} style="display: block;">
             <div class="dropdown-trigger">
                 <span class="control has-icons-right">
                     <input
                         type="text"
-                        class="input"
+                        class="input is-small"
                         class:is-danger={is_error}
                         {id}
                         {name}
@@ -160,7 +160,7 @@
             </div>
             <div bind:this={dropdownMenuNode} class="dropdown-menu pt-0">
                 {#if matches.length > 0}
-                    <div class="dropdown-content pt-0  is-clipped">
+                    <div class="dropdown-content pt-0 is-clipped">
                         {#each matches as match, index (match)}
                             <!-- svelte-ignore a11y-invalid-attribute -->
                             <a

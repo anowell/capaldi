@@ -5,6 +5,11 @@ export interface Group {
     name:string,
 }
 
+export interface Resource {
+    id:number,
+    name:string,
+}
+
 export async function getGroups(): Promise<Group[]> {
     const { data } = await axios.get<Group[]>('/api/groups');
     return data;

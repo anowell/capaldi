@@ -2,13 +2,22 @@
     import type { AxiosError } from "axios";
     import { Group, getGroups } from '../api/groups';
     import { useQuery } from '@sveltestack/svelte-query';
-    import Allocation from '../components/Allocation.svelte';
+    import AllocationModal from '../components/AllocationModal.svelte';
 
     const groupsResult = useQuery<Group[], AxiosError>('groups', getGroups);
+
+    let modal_active = false;
+    let modal_resource_id;
+    let modal_date;
+    function editAllocations(resource_id: number, date: Date) {
+        modal_resource_id = resource_id;
+        modal_date = date;
+        modal_active = true;
+    }
 </script>
 
 <div>
-    <Allocation />
+    <AllocationModal bind:is_active={modal_active} />
     {#if $groupsResult.status === 'loading'}
         <span>Loading...</span>
     {:else if $groupsResult.status === 'error'}
@@ -32,7 +41,7 @@
                 </thead>
                 <tbody>
                         <tr>
-                            <td><a href="#"><ion-icon name="create"></ion-icon></a></td>
+                            <td><a href="1/edit"><ion-icon name="create"></ion-icon></a></td>
                             <td>Rebekah Martin</td>
                             <td>
                                 <div>Time Off <span class="tag">100%</span></div>
@@ -51,7 +60,7 @@
                                 <div>Component Stewardship: Bugs <span class="tag">50%</span></div>
                                 <div>Capacity Allocation Visualization <span class="tag">50%</span></div>
                             </td>
-                            <td class="is-selected">
+                            <td class="is-selected is-clickable" on:click={() => editAllocations(1, null)}>
                                 <div>Capacity Allocation Visualization <span class="tag">100%</span></div>
                             </td>
                             <td>
@@ -75,7 +84,7 @@
                         </tr>
                 </tbody>
             </table>
-    
+
         </div>
     {/if}
 </div>

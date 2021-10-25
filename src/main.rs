@@ -50,7 +50,7 @@ fn internal_error() -> Value {
     })
 }
 
-#[rocket::get("/<_file..>", rank = 11)]  
+#[rocket::get("/<_file..>", rank = 11)]
 async fn spa_fallback(_file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new(relative!("frontend/public/index.html"))).await.ok()
 }
@@ -63,6 +63,7 @@ fn rocket() -> _ {
         .mount("/api/session", routes::session::routes())
         .mount("/api/groups", routes::groups::routes())
         .mount("/api/projects", routes::projects::routes())
+        .mount("/api/resources", routes::resources::routes())
         .mount("/", FileServer::from(relative!("frontend/public")))
         .mount("/", rocket::routes![spa_fallback])
         .register("/", rocket::catchers![not_found, internal_error])
