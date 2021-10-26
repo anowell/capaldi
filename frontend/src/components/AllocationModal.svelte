@@ -8,7 +8,6 @@
   // export let date: Date;
   // export let resource: Resource;
   export let is_active: boolean;
-
   let close = () => (is_active = false);
 
 

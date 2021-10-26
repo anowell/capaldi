@@ -176,6 +176,7 @@ dependencies = [
  "chrono",
  "diesel_migrations",
  "futures",
+ "itertools",
  "log",
  "rocket",
  "rocket_db_pools",

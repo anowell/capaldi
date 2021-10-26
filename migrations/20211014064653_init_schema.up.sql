@@ -32,7 +32,7 @@ CREATE TABLE resource_roles (
   name text NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_resources_deleted
+CREATE INDEX idx_resources_deleted
   ON resources (is_deleted ASC);
 
 CREATE TABLE projects (

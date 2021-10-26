@@ -5,7 +5,7 @@ use rocket_db_pools::{sqlx, Connection};
 use serde::{Deserialize, Serialize};
 use sqlx::Connection as _;
 
-#[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Allocation {
     pub id: i64,
     pub start_date: NaiveDateTime,
@@ -15,7 +15,7 @@ pub struct Allocation {
     pub percent: i64,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewResourceAllocation {
     pub project_id: i64,
     pub component_id: i64,

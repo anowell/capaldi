@@ -4,7 +4,7 @@ use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
 use serde::{Deserialize, Serialize};
 
-#[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Project {
     id: i64,
     name: String,

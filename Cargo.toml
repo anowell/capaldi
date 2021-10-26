@@ -9,6 +9,7 @@ log = "*"
 serde = "*"
 serde_json = "*"
 futures = "*"
+itertools = "0.10"
 
 [dependencies.chrono]
 features = ["serde"]

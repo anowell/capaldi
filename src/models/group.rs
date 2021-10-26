@@ -1,15 +1,30 @@
 use crate::models::user::User;
 use crate::models::*;
+use crate::models::resource::ResourceView;
 use crate::{Db, Result};
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, sqlx::SqlitePool, Connection};
 use serde::{Deserialize, Serialize};
 
-#[derive(sqlx::FromRow, Serialize, Deserialize, Debug)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Group {
     pub id: i64,
     pub owner_id: i64,
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GroupView {
+    pub id: i64,
+    pub name: String,
+    pub resources: Vec<ResourceView>,
+}
+
+impl Group {
+    pub fn with_resources(self, resources: Vec<ResourceView>) -> GroupView {
+        let Group{id, name, ..} = self;
+        GroupView { id, name, resources }
+    }
 }
 
 pub async fn get_user_groups(user: &User, db: &mut Connection<Db>) -> Result<Vec<Group>> {
