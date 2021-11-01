@@ -29,11 +29,11 @@ db-exec sql:
 
 # Login to the dev server with curl, saving session cookie for subsequent requests
 login:
-  curl -c cookies.txt -X POST localhost:8000/session/login
+  curl -c cookies.txt -X POST localhost:8000/api/session
 
 # Logout of dev server with curl
 logout:
-  curl -b cookies.txt -c cookies.txt -X POST localhost:8000/session/logout
+  curl -b cookies.txt -c cookies.txt -X DELETE localhost:8000/api/session
 
 # Curl a path with session cookies (e.g. from the login command)
 curl PATH *ARGS:

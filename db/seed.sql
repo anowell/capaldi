@@ -37,4 +37,12 @@ INSERT INTO resources (id, group_id, name, role_id, is_fte) VALUES
     (10, 2, "Leslie Lamport", 1, true),
     (11, 2, "Edsger Dijkstra", 1, true);
 
-
+INSERT INTO allocations (id, start_date, resource_id, project_id, component_id, percent) VALUES
+    (1, "2021-11-01", 1, 1, 1, 50),
+    (2, "2021-11-01", 1, 2, 2, 50),
+    (3, "2021-11-01", 2, 3, 3, 50),
+    (4, "2021-11-01", 2, 4, 1, 50),
+    (5, "2021-11-01", 3, 1, 2, 50),
+    (6, "2021-11-01", 3, 2, 3, 50),
+    (7, "2021-11-01", 4, 3, 1, 50),
+    (8, "2021-11-01", 4, 4, 2, 50);

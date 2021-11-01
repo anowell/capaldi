@@ -28,7 +28,6 @@ async fn list_groups(user: User, mut db: Connection<Db>) -> Result<Json<Vec<Grou
             )
         })
         .into_group_map();
-    // let mut ref map = &mut group_map;
     let groups_view = groups
         .into_iter()
         .map(|g| { let id = g.id; g.with_resources(map.remove(&id).unwrap_or_else(Vec::new))})

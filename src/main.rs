@@ -62,6 +62,7 @@ fn rocket() -> _ {
         .mount("/", rocket::routes![health])
         .mount("/api/session", routes::session::routes())
         .mount("/api/groups", routes::groups::routes())
+        .mount("/api/allocations", routes::allocations::routes())
         .mount("/api/projects", routes::projects::routes())
         .mount("/api/resources", routes::resources::routes())
         .mount("/", FileServer::from(relative!("frontend/public")))

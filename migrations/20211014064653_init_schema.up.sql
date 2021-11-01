@@ -72,7 +72,7 @@ CREATE TABLE components (
 
 CREATE TABLE allocations (
   id integer NOT NULL PRIMARY KEY,
-  start_date datetime NOT NULL,
+  start_date text NOT NULL,  -- DATE or DATETIME type?
   resource_id integer NOT NULL,
   project_id integer NOT NULL,
   component_id integer NOT NULL,

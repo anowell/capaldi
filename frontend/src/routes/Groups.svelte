@@ -1,11 +1,80 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
   import { Group, getGroups } from "../api/groups";
-  import { useQuery } from "@sveltestack/svelte-query";
+  import { Project, getProjects } from "../api/projects";
+  import {
+    Allocation,
+    AllocationMap,
+    getAllocations,
+    ResourceAllocation,
+  } from "../api/allocations";
+  import {
+    useQuery,
+    useQueries,
+    useInfiniteQuery,
+  } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
 
   const groupsResult = useQuery<Group[], AxiosError>("groups", getGroups);
+  const projectsResult = useQuery<Project[], AxiosError>(
+    "projects",
+    getProjects
+  );
+
+  let projectNames = {};
+  $: projectNames = pickMap($projectsResult.data || {}, "name");
+
+  function lookupAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
+    const ymd = dateToYMD(date)
+    const res = String(resource);
+    if (data && data[ymd] && Array.isArray(data[ymd][res])) {
+      return data[ymd][res];
+    } else {
+      return [];
+    }
+  }
+
+  function dateToYMD(date: Date) {
+    return date.toISOString().split('T')[0]
+  }
+
+  const pickMap = (obj, key) => {
+    return Object.keys(obj).reduce((a, b) => {
+      a[b] = obj[b][key];
+      return a;
+    }, {});
+  };
+
+  const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
+    list.reduce((previous, currentItem) => {
+      const group = getKey(currentItem);
+      if (!previous[group]) previous[group] = [];
+      previous[group].push(currentItem);
+      return previous;
+    }, {} as Record<K, T[]>);
+
+  const addDays = (days: number) => {
+    var date = new Date(); // TODO: get start of current week
+    date.setDate(date.getDate() + days);
+    return date;
+  };
+  const days = [
+    addDays(0),
+    addDays(7),
+    addDays(15),
+  ];
+  const allocResult = useQueries([
+    { queryKey: ["alloc", days[0]], queryFn: () => fetchAllocations(days[0]) },
+    { queryKey: ["alloc", days[1]], queryFn: () => fetchAllocations(days[1]) },
+    { queryKey: ["alloc", days[2]], queryFn: () => fetchAllocations(days[2]) },
+  ]);
+
+  const fetchAllocations = async (date: Date) => {
+    let alloc = await getAllocations(date);
+    // return groupBy(alloc, a => String(a.resource_id))
+    return alloc;
+  };
 
   let alloc_modal_active = false;
   let alloc_modal_resource_id;
@@ -41,51 +110,33 @@
         <table class="table is-hoverable is-striped is-fullwidth">
           <thead>
             <tr>
-              <!-- <td style="width: 50px;">&nbsp;</td> -->
               <th>Resource</th>
-              <th style="width: 25%;">10.18</th>
-              <th style="width: 25%;" class="is-selected">10.25</th>
-              <th style="width: 25%;">11.1</th>
+              <th style="width: 25%;">{days[0].toLocaleDateString()}</th>
+              <th style="width: 25%;" class="is-selected">{days[1].toLocaleDateString()}</th>
+              <th style="width: 25%;">{days[2].toLocaleDateString()}</th>
             </tr>
           </thead>
           <tbody>
             {#each group.resources as resource}
               <tr>
-                <!-- <td><a href={`1/edit`}><i class="fas fa-edit"></i></a></td> -->
                 <td>{resource.name}</td>
-                <td
-                  class="is-clickable"
-                  on:click={() => editAllocations(1, null)}
-                >
-                  <div>
-                    Component Stewardship: Bugs <span class="tag">80%</span>
-                  </div>
-                  <div>
-                    Time Off <span class="tag">20%</span>
-                  </div>
-                </td>
-                <td
-                  class="is-clickable is-selected"
-                  on:click={() => editAllocations(1, null)}
-                >
-                  <div>
-                    Time Off <span class="tag">100%</span>
-                  </div>
-                </td>
-
-                <td
-                  class="is-clickable"
-                  on:click={() => editAllocations(1, null)}
-                >
-                  <div>
-                    Component Stewardship: Bugs <span class="tag">50%</span>
-                  </div>
-                  <div>
-                    Capacity Allocation Visualization <span class="tag"
-                      >50%</span
-                    >
-                  </div>
-                </td>
+                {#each [0, 1, 2] as i}
+                  <td
+                    class="is-clickable"
+                    class:is-selected={i === 1}
+                    on:click={() =>
+                      editAllocations(resource.id, days[i])}
+                  >
+                    {#if $allocResult[i].isSuccess}
+                      {#each lookupAlloc($allocResult[i].data, days[i], resource.id) as alloc}
+                        <div>
+                          {projectNames[alloc.project_id]}
+                          <span class="tag">{alloc.percent}%</span>
+                        </div>
+                      {/each}
+                    {/if}
+                  </td>
+                {/each}
               </tr>
             {/each}
           </tbody>

@@ -16,13 +16,27 @@ export interface Allocation {
 //     start_date: Date,
 // }
 
+export interface ResourceAllocation {
+    id: number,
+    project_id: number,
+    component_id: number,
+    percent: number,
+}
+
+export type AllocationMap = Record<string, Record<string, ResourceAllocation[]>>;
+
 export interface NewResourceAllocation {
     project_id: number,
     component_id: number,
     percent: number,
 }
 
-export async function getAllocations(resource_id: number, date: Date): Promise<Allocation[]> {
+export async function getAllocations(date: Date): Promise<AllocationMap> {
+    const { data } = await axios.get<AllocationMap>(`/api/allocations?date=${date}`);
+    return data;
+}
+
+export async function getResourceAllocations(resource_id: number, date: Date): Promise<Allocation[]> {
     const { data } = await axios.get<Allocation[]>(`/api/resources/${resource_id}/allocations`);
     return data;
 }

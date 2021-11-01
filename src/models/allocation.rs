@@ -8,8 +8,16 @@ use sqlx::Connection as _;
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Allocation {
     pub id: i64,
-    pub start_date: NaiveDateTime,
+    pub start_date: String, // NaiveDate ???
     pub resource_id: i64,
+    pub project_id: i64,
+    pub component_id: i64,
+    pub percent: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ResourceAllocation {
+    pub id: i64,
     pub project_id: i64,
     pub component_id: i64,
     pub percent: i64,
@@ -20,6 +28,30 @@ pub struct NewResourceAllocation {
     pub project_id: i64,
     pub component_id: i64,
     pub percent: i64,
+}
+
+pub async fn get_user_allocations(
+    user: &User,
+    db: &mut Connection<Db>,
+    start_at: Option<NaiveDate>,
+) -> Result<Vec<Allocation>> {
+    let start_at = start_at.unwrap_or(Utc::today().naive_local());
+    log::info!("Query allocations for user={}, start_date: {}", user.id, start_at);
+    let allocations = sqlx::query_as!(
+        Allocation,
+        "SELECT *
+            FROM allocations WHERE resource_id IN
+            (SELECT id FROM resources WHERE group_id IN (SELECT id FROM groups WHERE owner_id = ?))
+            AND start_date >= date(?)
+            AND start_date < date(?, '+14 days')",
+        user.id,
+        start_at,
+        start_at
+    )
+    .fetch_all(&mut **db)
+    .await?;
+
+    Ok(allocations)
 }
 
 pub async fn get_group_allocations(
