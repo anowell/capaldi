@@ -3,30 +3,23 @@
   import { Group, getGroups } from "../api/groups";
   import { Project, getProjects } from "../api/projects";
   import {
-    Allocation,
-    AllocationMap,
     getAllocations,
+    NewResourceAllocationPretty,
     ResourceAllocation,
   } from "../api/allocations";
-  import {
-    useQuery,
-    useQueries,
-    useInfiniteQuery,
-  } from "@sveltestack/svelte-query";
+  import { useQuery, useQueries, useInfiniteQuery } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
+  import { addDays, dateToYMD, pickMap } from "../util";
 
   const groupsResult = useQuery<Group[], AxiosError>("groups", getGroups);
-  const projectsResult = useQuery<Project[], AxiosError>(
-    "projects",
-    getProjects
-  );
+  const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
 
   let projectNames = {};
   $: projectNames = pickMap($projectsResult.data || {}, "name");
 
   function lookupAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
-    const ymd = dateToYMD(date)
+    const ymd = dateToYMD(date);
     const res = String(resource);
     if (data && data[ymd] && Array.isArray(data[ymd][res])) {
       return data[ymd][res];
@@ -35,35 +28,7 @@
     }
   }
 
-  function dateToYMD(date: Date) {
-    return date.toISOString().split('T')[0]
-  }
-
-  const pickMap = (obj, key) => {
-    return Object.keys(obj).reduce((a, b) => {
-      a[b] = obj[b][key];
-      return a;
-    }, {});
-  };
-
-  const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
-    list.reduce((previous, currentItem) => {
-      const group = getKey(currentItem);
-      if (!previous[group]) previous[group] = [];
-      previous[group].push(currentItem);
-      return previous;
-    }, {} as Record<K, T[]>);
-
-  const addDays = (days: number) => {
-    var date = new Date(); // TODO: get start of current week
-    date.setDate(date.getDate() + days);
-    return date;
-  };
-  const days = [
-    addDays(0),
-    addDays(7),
-    addDays(15),
-  ];
+  const days = [addDays(0), addDays(7), addDays(15)];
   const allocResult = useQueries([
     { queryKey: ["alloc", days[0]], queryFn: () => fetchAllocations(days[0]) },
     { queryKey: ["alloc", days[1]], queryFn: () => fetchAllocations(days[1]) },
@@ -77,16 +42,26 @@
   };
 
   let alloc_modal_active = false;
-  let alloc_modal_resource_id;
-  let alloc_modal_date;
-  function editAllocations(resource_id: number, date: Date) {
-    alloc_modal_resource_id = resource_id;
-    alloc_modal_date = date;
+  let alloc_modal_resource: string;
+  let alloc_modal_date: Date;
+  let alloc_modal_data: NewResourceAllocationPretty[];
+
+  function editAllocations(col: number, resource) {
+    alloc_modal_resource = resource.name;
+    alloc_modal_date = days[col];
+    // TODO: stop hard-coding allocResult[0]
+    let data = lookupAlloc($allocResult[col].data, days[col], resource.id);
+    alloc_modal_data = data.map((a) => ({
+      project: projectNames[a.project_id],
+      component: "TODO Component",
+      percent: a.percent,
+    }));
     alloc_modal_active = true;
   }
 
   let res_modal_active = false;
   let res_modal_group_id;
+
   function newResource(group_id: number) {
     res_modal_group_id = group_id;
     res_modal_active = true;
@@ -94,11 +69,13 @@
 </script>
 
 <div>
-  <AllocationModal bind:is_active={alloc_modal_active} />
-  <ResourceModal
-    bind:is_active={res_modal_active}
-    group_id={res_modal_group_id}
+  <AllocationModal
+    bind:is_active={alloc_modal_active}
+    allocations={alloc_modal_data}
+    date={alloc_modal_date}
+    resource={alloc_modal_resource}
   />
+  <ResourceModal bind:is_active={res_modal_active} group_id={res_modal_group_id} />
   {#if $groupsResult.status === "loading"}
     <span>Loading...</span>
   {:else if $groupsResult.status === "error"}
@@ -124,8 +101,7 @@
                   <td
                     class="is-clickable"
                     class:is-selected={i === 1}
-                    on:click={() =>
-                      editAllocations(resource.id, days[i])}
+                    on:click={() => editAllocations(i, resource)}
                   >
                     {#if $allocResult[i].isSuccess}
                       {#each lookupAlloc($allocResult[i].data, days[i], resource.id) as alloc}
@@ -143,10 +119,7 @@
         </table>
         <div class="field pb-6">
           <div class="control">
-            <button
-              class="button is-primary is-small"
-              on:click={() => newResource(group.id)}
-            >
+            <button class="button is-primary is-small" on:click={() => newResource(group.id)}>
               <span class="fas fa-plus" />
               &nbsp; New Resource
             </button>

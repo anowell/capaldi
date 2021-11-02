@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 export interface Project {
-    id:number,
-    name:string,
+    id: number,
+    name: string,
 }
 
 export async function getProjects(): Promise<Project[]> {

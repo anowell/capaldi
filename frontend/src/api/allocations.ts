@@ -31,6 +31,12 @@ export interface NewResourceAllocation {
     percent: number,
 }
 
+export interface NewResourceAllocationPretty {
+    project: string,
+    component: string,
+    percent: number,
+}
+
 export async function getAllocations(date: Date): Promise<AllocationMap> {
     const { data } = await axios.get<AllocationMap>(`/api/allocations?date=${date}`);
     return data;

@@ -1,18 +1,8 @@
 <script lang="ts">
     import type { AxiosError } from "axios";
-    import {
-        Resource,
-        Group,
-        getGroups,
-        postResource,
-        NewResource,
-    } from "../api/groups";
+    import { Resource, Group, getGroups, postResource, NewResource } from "../api/groups";
     import { Project, getProjects } from "../api/projects";
-    import {
-        useQuery,
-        useMutation,
-        useQueryClient,
-    } from "@sveltestack/svelte-query";
+    import { useQuery, useMutation, useQueryClient } from "@sveltestack/svelte-query";
 
     export let is_active: boolean;
     export let group_id: number;
@@ -34,7 +24,6 @@
             },
         }
     );
-
 </script>
 
 <div class="modal" class:is-active={is_active}>

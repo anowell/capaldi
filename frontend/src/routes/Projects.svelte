@@ -3,10 +3,7 @@
     import { Project, getProjects } from "../api/projects";
     import { useQuery } from "@sveltestack/svelte-query";
 
-    const projectsResult = useQuery<Project[], AxiosError>(
-        "projects",
-        getProjects
-    );
+    const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
 </script>
 
 <div>
@@ -26,7 +23,7 @@
             <tbody>
                 {#each $projectsResult.data as project}
                     <tr>
-                        <td><a href="#"><ion-icon name="create"></ion-icon></a></td>
+                        <td><a href="#"><ion-icon name="create" /></a></td>
                         <td>{project.name}</td>
                         <td>{project.category_id}</td>
                     </tr>

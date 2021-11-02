@@ -4,17 +4,17 @@
   import { Project, getProjects } from "../api/projects";
   import { useQuery } from "@sveltestack/svelte-query";
   import AutoComplete from "./AutoComplete.svelte";
+  import type { NewResourceAllocationPretty } from "../api/allocations";
+  import { onMount } from "svelte";
+  import { dateToYMD } from "../util";
 
-  // export let date: Date;
-  // export let resource: Resource;
+  export let resource: string;
+  export let date: Date;
+  export let allocations: NewResourceAllocationPretty[] = [];
   export let is_active: boolean;
   let close = () => (is_active = false);
 
-
-  const projectsResult = useQuery<Project[], AxiosError>(
-    "projects",
-    getProjects
-  );
+  const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
   let projects = [];
   $: {
     if ($projectsResult.data) {
@@ -22,9 +22,11 @@
     }
   }
 
-  // let allocationResult = useQuery<[], AxiosError>(`alloc-${resource.id}-${date}`, () =>
-  //   getAllocations(resource.id, date)
-  // );
+  $: {
+    if (allocations.length === 0) {
+      newAllocation(null, null);
+    }
+  }
 
   // function validate() {
   //   allocations.forEach((alloc) => {
@@ -41,14 +43,11 @@
   //   }
   // }
 
-  let allocations: { project: string; component: string; percent: number }[] =
-    [];
   function newAllocation(project: string, component: string) {
-    let percent = allocations.reduce((a,b)=> a+Number(b.percent), 0);
-    allocations.push({ project, component, percent: 100-percent });
+    let percent = allocations.reduce((a, b) => a + Number(b.percent), 0);
+    allocations.push({ project, component, percent: 100 - percent });
     allocations = allocations;
   }
-  newAllocation(null, null);
 
   function removeAllocation(index: number) {
     allocations.splice(index, 1);
@@ -62,7 +61,7 @@
   <div class="modal-background" on:click={close} />
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Allocate Resource</p>
+      <p class="modal-card-title">{resource} - week of {dateToYMD(date)}</p>
       <button class="delete" aria-label="close" on:click={close} />
     </header>
     <div class="modal-card-body" style="min-height:200px;">
@@ -103,7 +102,10 @@
             </div>
 
             <div>
-              <button class="button is-danger is-small is-inverted" on:click={()=>removeAllocation(index)}>
+              <button
+                class="button is-danger is-small is-inverted"
+                on:click={() => removeAllocation(index)}
+              >
                 <span class="icon is-small">
                   <i class="fas fa-times" />
                 </span>
@@ -117,10 +119,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <button
-                class="button is-primary is-small"
-                on:click={() => newAllocation(null, null)}
-              >
+              <button class="button is-primary is-small" on:click={() => newAllocation(null, null)}>
                 <span class="fas fa-plus" />
                 &nbsp; Add Allocation
               </button>
@@ -137,7 +136,9 @@
 </div>
 
 <style>
-  .modal, .modal-card, .modal-card-body {
+  .modal,
+  .modal-card,
+  .modal-card-body {
     overflow: visible;
   }
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount } from "svelte";
     export let label: string = null;
     export let name: string;
     export let placeholder: string;
@@ -14,6 +14,7 @@
 
     let dropdownMenuNode;
     let is_error = false;
+
 
     function handleKeyPress(event: KeyboardEvent) {
         switch (event.key) {
@@ -35,29 +36,22 @@
                 is_active = false;
                 break;
             case "ArrowUp":
-                if(!is_active) {
+                if (!is_active) {
                     let index = data.indexOf(value);
-                    value = index > 1
-                        ? data[index - 1]
-                        : data[0];
+                    value = index > 1 ? data[index - 1] : data[0];
                 } else {
-                    activeIndex = activeIndex >= 1
-                        ? activeIndex - 1
-                        : 0;
+                    activeIndex = activeIndex >= 1 ? activeIndex - 1 : 0;
                     value = matches[activeIndex];
                 }
                 selected = true;
                 break;
             case "ArrowDown":
-                if(!is_active) {
+                if (!is_active) {
                     let index = data.indexOf(value);
-                    value = index < data.length - 1
-                        ? data[index + 1]
-                        : data[data.length - 1];
+                    value = index < data.length - 1 ? data[index + 1] : data[data.length - 1];
                 } else {
-                    activeIndex = activeIndex < matches.length - 1
-                        ? activeIndex + 1
-                        : matches.length - 1;
+                    activeIndex =
+                        activeIndex < matches.length - 1 ? activeIndex + 1 : matches.length - 1;
                     value = matches[activeIndex];
                 }
                 selected = true;
@@ -66,26 +60,13 @@
                 break;
         }
     }
-    function handleClick(event:Event) {
-        if(is_active) {
+    function handleClick(event: Event) {
+        if (is_active) {
             is_active = false;
-        } else if(selected) {
+        } else {
             matches = data;
             is_active = true;
-        } else {
-            value = (<HTMLInputElement>event.target).value;
-            if (value.length >= 1) {
-                matches = data.filter(
-                    (item) =>
-                        item.toUpperCase().indexOf(value.toUpperCase()) >= 0
-                );
-                is_active = matches.length > 0;
-            } else {
-                matches = data;
-                is_active = true;
-            }
         }
-
     }
 
     function handleBlur(event: Event) {
@@ -97,7 +78,7 @@
         }
     }
     function handleFocus(event: Event) {
-        (<HTMLInputElement>event.target).select()
+        (<HTMLInputElement>event.target).select();
     }
 
     function handleSelection(event: Event, selection: string) {
@@ -111,15 +92,14 @@
     function updateQuery(e: Event) {
         if (selected && (<InputEvent>e).inputType === "deleteContentBackward") {
             selected = false;
-                value = "";
-                matches = [];
-                is_active = false;
+            value = "";
+            matches = [];
+            is_active = false;
         } else {
             value = (<HTMLInputElement>e.target).value;
             if (value.length >= 1) {
                 matches = data.filter(
-                    (item) =>
-                        item.toUpperCase().indexOf(value.toUpperCase()) >= 0
+                    (item) => item.toUpperCase().indexOf(value.toUpperCase()) >= 0
                 );
                 is_active = matches.length > 0;
             } else {
@@ -128,7 +108,6 @@
             }
         }
     }
-
 </script>
 
 <div class="field">
@@ -167,8 +146,7 @@
                                 class="dropdown-item"
                                 class:is-active={index === activeIndex}
                                 href="javascript:;"
-                                on:click|preventDefault={(e) =>
-                                    handleSelection(e, match)}
+                                on:click|preventDefault={(e) => handleSelection(e, match)}
                             >
                                 {match}
                             </a>
