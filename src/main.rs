@@ -65,6 +65,7 @@ fn rocket() -> _ {
         .mount("/api/allocations", routes::allocations::routes())
         .mount("/api/projects", routes::projects::routes())
         .mount("/api/resources", routes::resources::routes())
+        .mount("/api/components", routes::components::routes())
         .mount("/", FileServer::from(relative!("frontend/public")))
         .mount("/", rocket::routes![spa_fallback])
         .register("/", rocket::catchers![not_found, internal_error])

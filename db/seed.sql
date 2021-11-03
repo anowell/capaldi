@@ -16,6 +16,12 @@ INSERT INTO categories (id, name) VALUES
     (5, 'Reactive / Disruptive Work'), -- oncall, customer disruption, etc. Urgent work that prevents any of the above
     (6, 'Time Off');
 
+INSERT INTO components (id, name) VALUES
+    (1, 'Frontend'),
+    (2, 'Backend'),
+    (3, 'Infrastructure'),
+    (4, 'Tools');
+
 INSERT INTO projects (id, name, category_id) VALUES
     (1, "Time Off", 6),
     (2, "Component Stewardship: Bugs", 2),

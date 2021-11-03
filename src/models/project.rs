@@ -1,6 +1,5 @@
 use crate::models::*;
 use crate::{Db, Result};
-use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
 use serde::{Deserialize, Serialize};
 
@@ -31,9 +30,3 @@ async fn get_project(db: &mut Connection<Db>, id: i32) -> Result<Project> {
         .await?;
     Ok(project)
 }
-
-// #[rocket::post("/projects")]
-// // repopulate project list (active and closed)
-// fn sync_projects() -> Json<Project> {
-//     todo!("implement update_projects");
-// }

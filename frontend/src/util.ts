@@ -1,11 +1,11 @@
 export function dateToYMD(date: Date) {
-    if(!date) { return ""; }
+    if (!date) { return ""; }
     return date.toISOString().split("T")[0];
 }
 
-export function pickMap(obj, key) {
-    return Object.keys(obj).reduce((a, b) => {
-        a[b] = obj[b][key];
+export function idMap(arr: {id:number|string}[]) {
+    return arr.reduce((a, b) => {
+        a[b.id] = b;
         return a;
     }, {});
 };

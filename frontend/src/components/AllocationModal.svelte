@@ -1,47 +1,83 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import type { Resource, Team, getTeams } from "../api/teams";
   import { getProjects, Project } from "../api/projects";
-  import { useQuery } from "@sveltestack/svelte-query";
+  import { getComponents, Component } from "../api/components";
+  import { useMutation, useQuery, useQueryClient } from "@sveltestack/svelte-query";
   import AutoComplete from "./AutoComplete.svelte";
-  import type { NewResourceAllocationPretty } from "../api/allocations";
+  import {
+    NewResourceAllocation,
+    NewResourceAllocationPretty,
+    putAllocations,
+  } from "../api/allocations";
   import { onMount } from "svelte";
   import { dateToYMD } from "../util";
+  import type { Resource } from "../api/teams";
 
-  export let resource: string;
+  export let resource: Resource;
   export let date: Date;
   export let allocations: NewResourceAllocationPretty[] = [];
   export let is_active: boolean;
   let close = () => (is_active = false);
 
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
-  let projects = [];
+  const componentsResult = useQuery<Component[], AxiosError>("components", getComponents);
+
+  let projects: string[] = [];
+  let components: string[] = [];
+
   $: {
     if ($projectsResult.data) {
       projects = $projectsResult.data.map((p) => p.name);
     }
   }
+  $: {
+    if ($componentsResult.data) {
+      components = $componentsResult.data.map((p) => p.name);
+    }
+  }
 
+  // Experience: always have at least one empty row
   $: {
     if (allocations.length === 0) {
       newAllocation(null, null);
     }
   }
 
-  // function validate() {
-  //   allocations.forEach((alloc) => {
-  //     if(!projects.indexOf(alloc.project)) {
-  //       console.log(`Invalid Project: ${alloc.project}`);
-  //     }
-  //     if(!components.indexOf(alloc.component)) {
-  //       console.log(`Invalid Component: ${alloc.component}`);
-  //     }
-  //   });
-  //   let totalPercent = allocations.reduce((a,b)=> a+Number(b.percent), 0);
-  //   if( totalPercent !== 100) {
-  //     console.log(`Total allocation: ${totalPercent}%`)
-  //   }
-  // }
+  function validate() {
+    allocations.forEach((alloc) => {
+      if (!projects.includes(alloc.project)) {
+        throw Error(`Invalid Project: ${alloc.project}`);
+      }
+      if (!components.includes(alloc.component)) {
+        throw Error(`Invalid Component: ${alloc.component}`);
+      }
+    });
+    let totalPercent = allocations.reduce((a, b) => a + Number(b.percent), 0);
+    if (totalPercent !== 100) {
+      throw Error(`Total allocation: ${totalPercent}%`);
+    }
+  }
+
+  const queryClient = useQueryClient();
+  const updateAllocations = useMutation<void, AxiosError, NewResourceAllocationPretty[]>(
+    (allocations) => {
+      validate();
+      const newAllocations: NewResourceAllocation[] = allocations
+        .filter((a) => Number(a.percent) > 0)
+        .map((a) => ({
+          project_id: $projectsResult.data.find((p) => p.name == a.project)?.id,
+          component_id: $componentsResult.data.find((c) => c.name == a.component)?.id,
+          percent: Number(a.percent),
+        }));
+      return putAllocations(resource.id, date, newAllocations);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["alloc", date]);
+        close();
+      },
+    }
+  );
 
   function newAllocation(project: string, component: string) {
     let percent = allocations.reduce((a, b) => a + Number(b.percent), 0);
@@ -53,15 +89,13 @@
     allocations.splice(index, 1);
     allocations = allocations;
   }
-
-  let components = ["Frontend", "Backend", "Infrastructure", "Tools"];
 </script>
 
 <div class="modal" class:is-active={is_active}>
   <div class="modal-background" on:click={close} />
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">{resource} - week of {dateToYMD(date)}</p>
+      <p class="modal-card-title">{resource?.name} - week of {dateToYMD(date)}</p>
       <button class="delete" aria-label="close" on:click={close} />
     </header>
     <div class="modal-card-body" style="min-height:200px;">
@@ -90,7 +124,7 @@
               <span class="control has-icons-right">
                 <input
                   class="input is-small"
-                  type="text"
+                  type="number"
                   class:is-danger={allocation.percent < 0 || allocation.percent > 100}
                   placeholder="100"
                   bind:value={allocation.percent}
@@ -129,7 +163,9 @@
       </div>
     </div>
     <footer class="modal-card-foot">
-      <button class="button is-success">Save changes</button>
+      <button class="button is-success" on:click={$updateAllocations.mutate(allocations)}
+        >Save changes</button
+      >
       <button class="button" on:click={close}>Cancel</button>
     </footer>
   </div>

@@ -1,4 +1,5 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios from 'axios';
+import { dateToYMD } from '../util';
 
 export interface Allocation {
     id: number,
@@ -38,16 +39,19 @@ export interface NewResourceAllocationPretty {
 }
 
 export async function getAllocations(date: Date): Promise<AllocationMap> {
-    const { data } = await axios.get<AllocationMap>(`/api/allocations?date=${date}`);
+    const ymd = dateToYMD(date);
+    const { data } = await axios.get<AllocationMap>(`/api/allocations?from=${ymd}`);
     return data;
 }
 
 export async function getResourceAllocations(resource_id: number, date: Date): Promise<Allocation[]> {
-    const { data } = await axios.get<Allocation[]>(`/api/resources/${resource_id}/allocations`);
+    const ymd = dateToYMD(date);
+    const { data } = await axios.get<Allocation[]>(`/api/resources/${resource_id}/allocations?from=${ymd}`);
     return data;
 }
 
 export async function putAllocations(resource_id: number, date: Date, allocations: NewResourceAllocation[]): Promise<any> {
-    const { data } = await axios.put(`/api/resources/${resource_id}/allocations/${date}`, allocations);
+    const ymd = dateToYMD(date);
+    const { data } = await axios.put(`/api/resources/${resource_id}/allocations/${ymd}`, allocations);
     return data;
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import { Team, getTeams } from "../api/teams";
+  import { Team, getTeams, Resource } from "../api/teams";
   import {
     getAllocations,
     NewResourceAllocationPretty,
@@ -9,14 +9,18 @@
   import { useQuery, useQueries, useInfiniteQuery } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
-  import { addDays, dateToYMD, pickMap } from "../util";
+  import { addDays, dateToYMD, idMap } from "../util";
 import { getProjects, Project } from "../api/projects";
+import { Component, getComponents } from "../api/components";
 
   const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
+  const componentsResult = useQuery<Component[], AxiosError>("components", getComponents);
 
-  let projectNames = {};
-  $: projectNames = pickMap($projectsResult.data || {}, "name");
+  let projectMap = {};
+  let componentMap = {};
+  $: projectMap = idMap($projectsResult.data || []);
+  $: componentMap = idMap($componentsResult.data || []);
 
   function lookupAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
     const ymd = dateToYMD(date);
@@ -42,18 +46,18 @@ import { getProjects, Project } from "../api/projects";
 
 
   let alloc_modal_active = false;
-  let alloc_modal_resource: string;
+  let alloc_modal_resource: Resource;
   let alloc_modal_date: Date;
   let alloc_modal_data: NewResourceAllocationPretty[];
 
   function editAllocations(col: number, resource) {
-    alloc_modal_resource = resource.name;
+    alloc_modal_resource = resource;
     alloc_modal_date = days[col];
     // TODO: stop hard-coding allocResult[0]
     let data = lookupAlloc($allocResult[col].data, days[col], resource.id);
     alloc_modal_data = data.map((a) => ({
-      project: projectNames[a.project_id],
-      component: "TODO Component",
+      project: projectMap[a.project_id].name,
+      component: componentMap[a.component_id].name,
       percent: a.percent,
     }));
     alloc_modal_active = true;
@@ -106,7 +110,7 @@ import { getProjects, Project } from "../api/projects";
                     {#if $allocResult[i].isSuccess}
                       {#each lookupAlloc($allocResult[i].data, days[i], resource.id) as alloc}
                         <div>
-                          {projectNames[alloc.project_id]}
+                          {projectMap[alloc.project_id].name}
                           <span class="tag">{alloc.percent}%</span>
                         </div>
                       {/each}

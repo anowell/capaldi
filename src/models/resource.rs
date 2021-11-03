@@ -1,7 +1,6 @@
 use crate::models::*;
 use crate::models::user::User;
 use crate::{Db, Result};
-use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
 use serde::{Deserialize, Serialize};
 
