@@ -1,11 +1,11 @@
 <script lang="ts">
     import type { AxiosError } from "axios";
-    import { Resource, Group, getGroups, postResource, NewResource } from "../api/groups";
+    import { Resource, Team, getTeams, postResource, NewResource } from "../api/teams";
     import { Project, getProjects } from "../api/projects";
     import { useQuery, useMutation, useQueryClient } from "@sveltestack/svelte-query";
 
     export let is_active: boolean;
-    export let group_id: number;
+    export let team_id: number;
 
     let error: string;
     let close = () => {
@@ -16,10 +16,10 @@
 
     const queryClient = useQueryClient();
     const createResource = useMutation<void, AxiosError, NewResource>(
-        (resource) => postResource(group_id, resource),
+        (resource) => postResource(team_id, resource),
         {
             onSuccess: () => {
-                queryClient.invalidateQueries("groups");
+                queryClient.invalidateQueries("teams");
                 close();
             },
         }

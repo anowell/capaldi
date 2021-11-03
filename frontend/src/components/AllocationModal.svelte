@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import type { Resource, Group, getGroups } from "../api/groups";
-  import { Project, getProjects } from "../api/projects";
+  import type { Resource, Team, getTeams } from "../api/teams";
+  import { getProjects, Project } from "../api/projects";
   import { useQuery } from "@sveltestack/svelte-query";
   import AutoComplete from "./AutoComplete.svelte";
   import type { NewResourceAllocationPretty } from "../api/allocations";

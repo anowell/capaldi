@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Router, Link, Route } from "svelte-navigator";
   import Projects from "./routes/Projects.svelte";
-  import Groups from "./routes/Groups.svelte";
+  import Groups from "./routes/Teams.svelte";
   import { QueryClient, QueryClientProvider, useQuery } from "@sveltestack/svelte-query";
   import { User, postSession } from "./api/session";
 
@@ -38,7 +38,7 @@
         <div id="navbarBasicExample" class="navbar-menu">
           {#if loggedIn}
             <div class="navbar-start">
-              <Link to="groups" getProps={navProps}>Team</Link>
+              <Link to="teams" getProps={navProps}>Team</Link>
               <Link to="projects" getProps={navProps}>Projects</Link>
             </div>
           {/if}
@@ -59,7 +59,7 @@
       <main class="container">
         {#if loggedIn}
           <Route path="projects" component={Projects} />
-          <Route path="groups"><Groups /></Route>
+          <Route path="teams"><Groups /></Route>
           <Route path="resources/:id">TODO</Route>
         {:else}
           <div class="column is-half is-offset-one-quarter">

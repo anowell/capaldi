@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import { Group, getGroups } from "../api/groups";
-  import { Project, getProjects } from "../api/projects";
+  import { Team, getTeams } from "../api/teams";
   import {
     getAllocations,
     NewResourceAllocationPretty,
@@ -11,8 +10,9 @@
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
   import { addDays, dateToYMD, pickMap } from "../util";
+import { getProjects, Project } from "../api/projects";
 
-  const groupsResult = useQuery<Group[], AxiosError>("groups", getGroups);
+  const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
 
   let projectNames = {};
@@ -28,18 +28,18 @@
     }
   }
 
-  const days = [addDays(0), addDays(7), addDays(15)];
+  const days = [addDays(-7), addDays(0), addDays(7)];
+  const fetchAllocations = async (date: Date) => {
+    let alloc = await getAllocations(date);
+    // return teamBy(alloc, a => String(a.resource_id))
+    return alloc;
+  };
   const allocResult = useQueries([
     { queryKey: ["alloc", days[0]], queryFn: () => fetchAllocations(days[0]) },
     { queryKey: ["alloc", days[1]], queryFn: () => fetchAllocations(days[1]) },
     { queryKey: ["alloc", days[2]], queryFn: () => fetchAllocations(days[2]) },
   ]);
 
-  const fetchAllocations = async (date: Date) => {
-    let alloc = await getAllocations(date);
-    // return groupBy(alloc, a => String(a.resource_id))
-    return alloc;
-  };
 
   let alloc_modal_active = false;
   let alloc_modal_resource: string;
@@ -60,10 +60,10 @@
   }
 
   let res_modal_active = false;
-  let res_modal_group_id;
+  let res_modal_team_id;
 
-  function newResource(group_id: number) {
-    res_modal_group_id = group_id;
+  function newResource(team_id: number) {
+    res_modal_team_id = team_id;
     res_modal_active = true;
   }
 </script>
@@ -75,15 +75,15 @@
     date={alloc_modal_date}
     resource={alloc_modal_resource}
   />
-  <ResourceModal bind:is_active={res_modal_active} group_id={res_modal_group_id} />
-  {#if $groupsResult.status === "loading"}
+  <ResourceModal bind:is_active={res_modal_active} team_id={res_modal_team_id} />
+  {#if $teamsResult.status === "loading"}
     <span>Loading...</span>
-  {:else if $groupsResult.status === "error"}
-    <span>Error: {$groupsResult.error.message}</span>
+  {:else if $teamsResult.status === "error"}
+    <span>Error: {$teamsResult.error.message}</span>
   {:else}
     <div>
-      {#each $groupsResult.data as group}
-        <h3 class="subtitle">{group.name}</h3>
+      {#each $teamsResult.data as team}
+        <h3 class="subtitle">{team.name}</h3>
         <table class="table is-hoverable is-striped is-fullwidth">
           <thead>
             <tr>
@@ -94,7 +94,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each group.resources as resource}
+            {#each team.resources as resource}
               <tr>
                 <td>{resource.name}</td>
                 {#each [0, 1, 2] as i}
@@ -119,7 +119,7 @@
         </table>
         <div class="field pb-6">
           <div class="control">
-            <button class="button is-primary is-small" on:click={() => newResource(group.id)}>
+            <button class="button is-primary is-small" on:click={() => newResource(team.id)}>
               <span class="fas fa-plus" />
               &nbsp; New Resource
             </button>

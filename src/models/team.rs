@@ -7,41 +7,41 @@ use rocket_db_pools::{sqlx, sqlx::SqlitePool, Connection};
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
-pub struct Group {
+pub struct Team {
     pub id: i64,
     pub owner_id: i64,
     pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct GroupView {
+pub struct TeamView {
     pub id: i64,
     pub name: String,
     pub resources: Vec<ResourceView>,
 }
 
-impl Group {
-    pub fn with_resources(self, resources: Vec<ResourceView>) -> GroupView {
-        let Group{id, name, ..} = self;
-        GroupView { id, name, resources }
+impl Team {
+    pub fn with_resources(self, resources: Vec<ResourceView>) -> TeamView {
+        let Team{id, name, ..} = self;
+        TeamView { id, name, resources }
     }
 }
 
-pub async fn get_user_groups(user: &User, db: &mut Connection<Db>) -> Result<Vec<Group>> {
-    let groups = sqlx::query_as!(Group, "SELECT * FROM groups WHERE owner_id = ?", user.id)
+pub async fn get_user_teams(user: &User, db: &mut Connection<Db>) -> Result<Vec<Team>> {
+    let teams = sqlx::query_as!(Team, "SELECT * FROM teams WHERE owner_id = ?", user.id)
         .fetch_all(&mut **db)
         .await?;
-    Ok(groups)
+    Ok(teams)
 }
 
-pub async fn get_group(user: &User, db: &mut Connection<Db>, id: i64) -> Result<Group> {
-    let group = sqlx::query_as!(
-        Group,
-        "SELECT * from groups where id = ? AND owner_id = ?",
+pub async fn get_team(user: &User, db: &mut Connection<Db>, id: i64) -> Result<Team> {
+    let team = sqlx::query_as!(
+        Team,
+        "SELECT * from teams where id = ? AND owner_id = ?",
         id,
         user.id
     )
     .fetch_one(&mut **db)
     .await?;
-    Ok(group)
+    Ok(team)
 }

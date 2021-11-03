@@ -41,7 +41,7 @@ pub async fn get_user_allocations(
         Allocation,
         "SELECT *
             FROM allocations WHERE resource_id IN
-            (SELECT id FROM resources WHERE group_id IN (SELECT id FROM groups WHERE owner_id = ?))
+            (SELECT id FROM resources WHERE team_id IN (SELECT id FROM teams WHERE owner_id = ?))
             AND start_date >= date(?)
             AND start_date < date(?, '+14 days')",
         user.id,
@@ -54,7 +54,7 @@ pub async fn get_user_allocations(
     Ok(allocations)
 }
 
-pub async fn get_group_allocations(
+pub async fn get_team_allocations(
     db: &mut Connection<Db>,
     id: i64,
     start_at: Option<NaiveDate>,
@@ -64,7 +64,7 @@ pub async fn get_group_allocations(
         Allocation,
         "SELECT *
             FROM allocations WHERE resource_id IN
-            (SELECT id FROM resources WHERE group_id = ?)
+            (SELECT id FROM resources WHERE team_id = ?)
             AND start_date >= date(?)
             AND start_date < date(?, '+14 days')",
         id,

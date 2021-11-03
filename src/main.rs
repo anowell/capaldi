@@ -61,7 +61,7 @@ fn rocket() -> _ {
         .attach(Db::init())
         .mount("/", rocket::routes![health])
         .mount("/api/session", routes::session::routes())
-        .mount("/api/groups", routes::groups::routes())
+        .mount("/api/teams", routes::teams::routes())
         .mount("/api/allocations", routes::allocations::routes())
         .mount("/api/projects", routes::projects::routes())
         .mount("/api/resources", routes::resources::routes())

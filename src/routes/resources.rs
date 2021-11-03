@@ -1,5 +1,5 @@
 use crate::models::*;
-use crate::models::{allocation::Allocation, allocation::NewResourceAllocation, group::Group, user::User};
+use crate::models::{allocation::Allocation, allocation::NewResourceAllocation, team::Team, user::User};
 use crate::util::NaiveDateForm;
 use crate::{Db, Result};
 use futures::TryFutureExt;
@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 // #[rocket::get("/<id>")]
 // async fn get_resource(user: User, mut db: Connection<Db>) -> Result<Json<Resource>> {
-//     group::get_user_groups(&user, &mut db).map_ok(Json).await
+//     team::get_user_teams(&user, &mut db).map_ok(Json).await
 // }
 
 #[rocket::put("/<id>/allocations/<date>", data = "<data>")]

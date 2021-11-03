@@ -14,7 +14,7 @@ CREATE UNIQUE INDEX idx_users_email_deleted
 
 CREATE TABLE resources (
   id integer NOT NULL PRIMARY KEY,
-  group_id integer NOT NULL,
+  team_id integer NOT NULL,
   name text NOT NULL,
   role_id integer NOT NULL,
   is_fte boolean NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE resources (
   is_deleted boolean NOT NULL DEFAULT false,
   deleted_at timestamp,
 
-  FOREIGN KEY (group_id) REFERENCES groups (id),
+  FOREIGN KEY (team_id) REFERENCES teams (id),
   FOREIGN KEY (role_id) REFERENCES resource_roles (id)
 );
 
@@ -51,12 +51,12 @@ CREATE TABLE projects (
 CREATE UNIQUE INDEX idx_projects_release
   ON projects (release ASC);
 
-CREATE TABLE groups (
+CREATE TABLE teams (
   id integer NOT NULL PRIMARY KEY,
   owner_id integer NOT NULL,
   name text NOT NULL,
 
-  -- todo: consider adding 'parent_id integer' to nest groups
+  -- todo: consider adding 'parent_id integer' to nest teams
   FOREIGN KEY (owner_id) REFERENCES users (id)
 );
 

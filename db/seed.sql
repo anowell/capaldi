@@ -1,7 +1,7 @@
 INSERT INTO users (id, email) VALUES (1, 'anowell@gmail.com');
 
-INSERT INTO groups (id, name, owner_id) VALUES (1, 'Applications', 1);
-INSERT INTO groups (id, name, owner_id) VALUES (2, 'Platforms', 1);
+INSERT INTO teams (id, name, owner_id) VALUES (1, 'Applications', 1);
+INSERT INTO teams (id, name, owner_id) VALUES (2, 'Platforms', 1);
 
 INSERT INTO resource_roles (id, name) VALUES
     (1, 'Dev'),
@@ -24,7 +24,7 @@ INSERT INTO projects (id, name, category_id) VALUES
     (5, "Ramp / Onboarding / Training", 3),
     (6, "On-Call / Escalation", 5);
 
-INSERT INTO resources (id, group_id, name, role_id, is_fte) VALUES
+INSERT INTO resources (id, team_id, name, role_id, is_fte) VALUES
     (1, 1, "Barbara Liskov", 1, true),
     (2, 1, "Alan Turin", 1, true),
     (3, 1, "Ada Lovelace", 1, true),

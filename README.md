@@ -56,7 +56,7 @@ just dev-server
 
 # in a separate console
 just login
-just curl /groups
+just curl /teams
 ```
 
 Starting capaldi frontend:

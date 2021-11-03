@@ -1,4 +1,4 @@
-pub mod groups;
+pub mod teams;
 pub mod projects;
 pub mod session;
 pub mod resources;
