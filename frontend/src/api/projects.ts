@@ -3,6 +3,7 @@ import axios from 'axios';
 export interface Project {
     id: number,
     name: string,
+    category_id: number,
 }
 
 export async function getProjects(): Promise<Project[]> {

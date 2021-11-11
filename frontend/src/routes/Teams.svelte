@@ -2,16 +2,18 @@
   import type { AxiosError } from "axios";
   import { Team, getTeams, Resource } from "../api/teams";
   import {
+    AllocationMap,
     getAllocations,
     NewResourceAllocationPretty,
     ResourceAllocation,
   } from "../api/allocations";
-  import { useQuery, useQueries, useInfiniteQuery } from "@sveltestack/svelte-query";
+  import { useQuery, Query, useQueries, UseQueryOptions } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
-  import { addDays, dateToYMD, idMap } from "../util";
-import { getProjects, Project } from "../api/projects";
-import { Component, getComponents } from "../api/components";
+  import { dateToYMD, idMap } from "../util";
+  import { getProjects, Project } from "../api/projects";
+  import { Component, getComponents } from "../api/components";
+  import dayjs from "dayjs";
 
   const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
@@ -22,39 +24,66 @@ import { Component, getComponents } from "../api/components";
   $: projectMap = idMap($projectsResult.data || []);
   $: componentMap = idMap($componentsResult.data || []);
 
-  function lookupAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
-    const ymd = dateToYMD(date);
-    const res = String(resource);
-    if (data && data[ymd] && Array.isArray(data[ymd][res])) {
-      return data[ymd][res];
-    } else {
-      return [];
-    }
+  const current_week = dayjs().startOf("week").add(1, "day");
+  let start_week = current_week.add(-1, "week");
+  let days = [
+    start_week.toDate(),
+    start_week.add(1, "week").toDate(),
+    start_week.add(2, "week").toDate(),
+  ];
+
+  const fetchAllocations = async (date: Date) => {
+    return await getAllocations(date);
+  };
+
+  function queryOptions(days): UseQueryOptions<AllocationMap, AxiosError>[] {
+    return days.map((day) => {
+      return {
+        queryKey: ["alloc", dateToYMD(day)],
+        queryFn: () => fetchAllocations(day),
+      };
+    });
   }
 
-  const days = [addDays(-7), addDays(0), addDays(7)];
-  const fetchAllocations = async (date: Date) => {
-    let alloc = await getAllocations(date);
-    // return teamBy(alloc, a => String(a.resource_id))
-    return alloc;
-  };
-  const allocResult = useQueries([
-    { queryKey: ["alloc", days[0]], queryFn: () => fetchAllocations(days[0]) },
-    { queryKey: ["alloc", days[1]], queryFn: () => fetchAllocations(days[1]) },
-    { queryKey: ["alloc", days[2]], queryFn: () => fetchAllocations(days[2]) },
-  ]);
+  $: {
+    days = [
+      start_week.toDate(),
+      start_week.add(1, "week").toDate(),
+      start_week.add(2, "week").toDate(),
+    ];
+  }
 
+  let allocResult = useQueries(queryOptions(days));
+  $: allocResult = useQueries(queryOptions(days));
+
+  function advance(weeks: number) {
+    start_week = start_week.add(weeks, "week");
+  }
+
+  function setCurrentWeek() {
+    dayjs().startOf("week").add(1, "day");
+  }
+
+  function isCurrentWeek(date: Date): boolean {
+    return current_week.isSame(date, "day");
+  }
+
+  function resourceAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
+    const ymd = dateToYMD(date);
+    const res = String(resource);
+    return data[ymd]?.[res] || [];
+  }
 
   let alloc_modal_active = false;
   let alloc_modal_resource: Resource;
   let alloc_modal_date: Date;
   let alloc_modal_data: NewResourceAllocationPretty[];
 
-  function editAllocations(col: number, resource) {
+  function editAllocations(col: number, resource: Resource) {
     alloc_modal_resource = resource;
     alloc_modal_date = days[col];
-    // TODO: stop hard-coding allocResult[0]
-    let data = lookupAlloc($allocResult[col].data, days[col], resource.id);
+
+    let data = resourceAlloc($allocResult[col].data, days[col], resource.id);
     alloc_modal_data = data.map((a) => ({
       project: projectMap[a.project_id].name,
       component: componentMap[a.component_id].name,
@@ -80,6 +109,14 @@ import { Component, getComponents } from "../api/components";
     resource={alloc_modal_resource}
   />
   <ResourceModal bind:is_active={res_modal_active} team_id={res_modal_team_id} />
+
+  <div class="column is-three-quarters is-offset-one-quarter">
+    <nav class="pagination is-small" role="navigation" aria-label="pagination">
+      <button on:click={() => advance(-1)} class="pagination-previous">Previous</button>
+      <button on:click={() => advance(1)} class="pagination-next">Next</button>
+    </nav>
+  </div>
+
   {#if $teamsResult.status === "loading"}
     <span>Loading...</span>
   {:else if $teamsResult.status === "error"}
@@ -92,23 +129,29 @@ import { Component, getComponents } from "../api/components";
           <thead>
             <tr>
               <th>Resource</th>
-              <th style="width: 25%;">{days[0].toLocaleDateString()}</th>
-              <th style="width: 25%;" class="is-selected">{days[1].toLocaleDateString()}</th>
-              <th style="width: 25%;">{days[2].toLocaleDateString()}</th>
+              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[0])}
+                >{dayjs(days[0]).format("ll")}</th
+              >
+              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[1])}
+                >{dayjs(days[1]).format("ll")}</th
+              >
+              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[2])}
+                >{dayjs(days[2]).format("ll")}</th
+              >
             </tr>
           </thead>
           <tbody>
             {#each team.resources as resource}
               <tr>
                 <td>{resource.name}</td>
-                {#each [0, 1, 2] as i}
+                {#each days as day, i}
                   <td
                     class="is-clickable"
-                    class:is-selected={i === 1}
+                    class:is-selected={isCurrentWeek(day)}
                     on:click={() => editAllocations(i, resource)}
                   >
                     {#if $allocResult[i].isSuccess}
-                      {#each lookupAlloc($allocResult[i].data, days[i], resource.id) as alloc}
+                      {#each resourceAlloc($allocResult[i].data, day, resource.id) as alloc}
                         <div>
                           {projectMap[alloc.project_id].name}
                           <span class="tag">{alloc.percent}%</span>
@@ -132,4 +175,12 @@ import { Component, getComponents } from "../api/components";
       {/each}
     </div>
   {/if}
+
+  <div class="column is-three-quarters is-offset-one-quarter">
+    <nav class="pagination is-small" role="navigation" aria-label="pagination">
+      <button on:click={() => advance(-1)} class="pagination-previous">Previous</button>
+      <button on:click={() => advance(1)} class="pagination-next">Next</button>
+    </nav>
+  </div>
+
 </div>

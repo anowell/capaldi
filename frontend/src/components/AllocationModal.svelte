@@ -25,16 +25,8 @@
   let projects: string[] = [];
   let components: string[] = [];
 
-  $: {
-    if ($projectsResult.data) {
-      projects = $projectsResult.data.map((p) => p.name);
-    }
-  }
-  $: {
-    if ($componentsResult.data) {
-      components = $componentsResult.data.map((p) => p.name);
-    }
-  }
+  $: projects = $projectsResult.data?.map((p) => p.name) || [];
+  $: components = $componentsResult.data?.map((p) => p.name) || [];
 
   // Experience: always have at least one empty row
   $: {
@@ -73,7 +65,7 @@
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["alloc", date]);
+        queryClient.invalidateQueries(["alloc", dateToYMD(date)]);
         close();
       },
     }
