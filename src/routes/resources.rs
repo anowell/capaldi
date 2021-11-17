@@ -20,7 +20,14 @@ async fn put_allocations(user: User, mut db: Connection<Db>, id: i64, date:Naive
     allocation::put_resource_allocations(&mut db, id, date.0, data.into_inner()).await
 }
 
+#[rocket::delete("/<id>/allocations/<date>")]
+async fn delete_allocations(user: User, mut db: Connection<Db>, id: i64, date:NaiveDateForm) -> Result<()> {
+    // Ensure resource is owned by user -- todo: FORWARD or 404 instead of returning an error
+    let _ = resource::get_resource(&user, &mut db, id).await?;
+
+    allocation::delete_resource_allocations(&mut db, id, date.0).await
+}
 
 pub fn routes() -> Vec<rocket::Route> {
-    rocket::routes![put_allocations]
+    rocket::routes![put_allocations, delete_allocations]
 }

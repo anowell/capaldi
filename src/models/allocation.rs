@@ -111,3 +111,19 @@ pub async fn put_resource_allocations(
     conn.commit().await?;
     Ok(())
 }
+
+pub async fn delete_resource_allocations(
+    db: &mut Connection<Db>,
+    id: i64,
+    start_at: NaiveDate,
+) -> Result<()> {
+    sqlx::query!(
+        "DELETE FROM allocations WHERE resource_id = ? AND start_date = date(?)",
+        id,
+        start_at
+    )
+    .execute(&mut **db)
+    .await?;
+
+    Ok(())
+}

@@ -55,3 +55,8 @@ export async function putAllocations(resource_id: number, date: Date, allocation
     const { data } = await axios.put(`/api/resources/${resource_id}/allocations/${ymd}`, allocations);
     return data;
 }
+
+export async function deleteResourceAllocations(resource_id: number, date: Date): Promise<void> {
+    const ymd = dateToYMD(date);
+    const { data } = await axios.delete(`/api/resources/${resource_id}/allocations/${ymd}`);
+}

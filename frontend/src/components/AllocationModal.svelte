@@ -5,6 +5,7 @@
   import { useMutation, useQuery, useQueryClient } from "@sveltestack/svelte-query";
   import AutoComplete from "./AutoComplete.svelte";
   import {
+deleteResourceAllocations,
     NewResourceAllocation,
     NewResourceAllocationPretty,
     putAllocations,
@@ -51,7 +52,7 @@
   }
 
   const queryClient = useQueryClient();
-  const updateAllocations = useMutation<void, AxiosError, NewResourceAllocationPretty[]>(
+  const updateMutation = useMutation<void, AxiosError, NewResourceAllocationPretty[]>(
     (allocations) => {
       validate();
       const newAllocations: NewResourceAllocation[] = allocations
@@ -71,6 +72,17 @@
     }
   );
 
+  const deleteMutation = useMutation<void, AxiosError>(
+    () => deleteResourceAllocations(resource.id, date),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["alloc", dateToYMD(date)]);
+        close();
+      },
+    }
+  );
+
+
   function newAllocation(project: string, component: string) {
     let percent = allocations.reduce((a, b) => a + Number(b.percent), 0);
     allocations.push({ project, component, percent: 100 - percent });
@@ -81,6 +93,7 @@
     allocations.splice(index, 1);
     allocations = allocations;
   }
+
 </script>
 
 <div class="modal" class:is-active={is_active}>
@@ -150,11 +163,13 @@
         </div>
       </div>
     </div>
-    <footer class="modal-card-foot">
-      <button class="button is-success" on:click={$updateAllocations.mutate(allocations)}
-        >Save changes</button
-      >
-      <button class="button" on:click={close}>Cancel</button>
+    <footer class="modal-card-foot is-justify-content-space-between">
+      <button class="button is-danger" on:click={() => $deleteMutation.mutate()}>
+        Delete
+      </button>
+      <button class="button is-success" on:click={() => $updateMutation.mutate(allocations)}>
+        Save changes
+      </button>
     </footer>
   </div>
 </div>
