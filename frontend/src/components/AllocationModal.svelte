@@ -129,13 +129,9 @@
 
             <div>
               <button
-                class="button is-danger is-small is-inverted"
+                class="delete is-small"
                 on:click={() => removeAllocation(index)}
-              >
-                <span class="icon is-small">
-                  <i class="fas fa-times" />
-                </span>
-              </button>
+              ></button>
             </div>
           </div>
         </div>

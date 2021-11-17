@@ -4,16 +4,26 @@
   import {
     AllocationMap,
     getAllocations,
+    NewResourceAllocation,
     NewResourceAllocationPretty,
+    putAllocations,
     ResourceAllocation,
   } from "../api/allocations";
-  import { useQuery, Query, useQueries, UseQueryOptions } from "@sveltestack/svelte-query";
+  import {
+    useQuery,
+    Query,
+    useQueries,
+    UseQueryOptions,
+    useMutation,
+    useQueryClient,
+  } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
   import { dateToYMD, idMap } from "../util";
   import { getProjects, Project } from "../api/projects";
   import { Component, getComponents } from "../api/components";
   import dayjs from "dayjs";
+  import { timeUntilStale } from "@sveltestack/svelte-query/dist/queryCore/core/utils";
 
   const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
@@ -68,11 +78,38 @@
     return current_week.isSame(date, "day");
   }
 
-  function resourceAlloc(data: any, date: Date, resource: number): ResourceAllocation[] {
+  function resourceAlloc(data: any, date: Date, resourceId: number): ResourceAllocation[] {
     const ymd = dateToYMD(date);
-    const res = String(resource);
-    return data[ymd]?.[res] || [];
+    const res = String(resourceId);
+    return data?.[ymd]?.[res] || [];
   }
+
+  type SrcDest = {
+    src: { allocations: ResourceAllocation[]; date: Date; resourceId: number };
+    dest: Date;
+  };
+  function srcDest(data: any, date: Date, resourceId: number, destDate): SrcDest {
+    return {
+      src: { allocations: resourceAlloc(data, date, resourceId), date, resourceId },
+      dest: destDate,
+    };
+  }
+  const queryClient = useQueryClient();
+  const copyAllocations = useMutation<void, AxiosError, SrcDest>(
+    ({ src, dest }) => {
+      const newAllocations: NewResourceAllocation[] = src.allocations.map((a) => {
+        let clone: ResourceAllocation = { ...a };
+        delete clone.id;
+        return clone;
+      });
+      return putAllocations(src.resourceId, dest, newAllocations);
+    },
+    {
+      onSuccess: (resData, { src, dest }) => {
+        queryClient.invalidateQueries(["alloc", dateToYMD(dest)]);
+      },
+    }
+  );
 
   let alloc_modal_active = false;
   let alloc_modal_resource: Resource;
@@ -125,7 +162,7 @@
     <div>
       {#each $teamsResult.data as team}
         <h3 class="subtitle">{team.name}</h3>
-        <table class="table is-hoverable is-striped is-fullwidth">
+        <table class="table is-hoverable is-striped is-bordered is-fullwidth">
           <thead>
             <tr>
               <th>Resource</th>
@@ -156,6 +193,19 @@
                           {projectMap[alloc.project_id].name}
                           <span class="tag">{alloc.percent}%</span>
                         </div>
+                      {:else}
+                        {#if i > 0 && resourceAlloc($allocResult[i - 1].data, days[i - 1], resource.id).length > 0}
+                          <button
+                            class="button is-small"
+                            style="left: -28px;"
+                            on:click|preventDefault|stopPropagation={() =>
+                              $copyAllocations.mutate(
+                                srcDest($allocResult[i - 1].data, days[i - 1], resource.id, days[i])
+                              )}
+                          >
+                            <span class="icon"><i class="fas fa-angle-double-right" /></span>
+                          </button>
+                        {/if}
                       {/each}
                     {/if}
                   </td>
@@ -182,5 +232,10 @@
       <button on:click={() => advance(1)} class="pagination-next">Next</button>
     </nav>
   </div>
-
 </div>
+
+<style>
+  .table td {
+    vertical-align: middle;
+  }
+</style>

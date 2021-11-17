@@ -8,7 +8,7 @@
     export let team_id: number;
 
     let error: string;
-    let close = () => {
+    let closeModal = () => {
         error = null;
         is_active = false;
     };
@@ -20,18 +20,18 @@
         {
             onSuccess: () => {
                 queryClient.invalidateQueries("teams");
-                close();
+                closeModal();
             },
         }
     );
 </script>
 
 <div class="modal" class:is-active={is_active}>
-    <div class="modal-background" on:click={close} />
+    <div class="modal-background" on:click={closeModal} />
     <div class="modal-card">
         <header class="modal-card-head">
             <p class="modal-card-title">Create Resource</p>
-            <button class="delete" aria-label="close" on:click={close} />
+            <button class="delete" aria-label="close" on:click={closeModal} />
         </header>
         <div class="modal-card-body">
             <div class="field">
@@ -73,7 +73,7 @@
                 class="button is-success"
                 on:click={$createResource.mutate(resource)}>Create</button
             >
-            <button class="button" on:click={close}>Cancel</button>
+            <button class="button" on:click={closeModal}>Cancel</button>
         </footer>
     </div>
 </div>
