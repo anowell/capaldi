@@ -57,17 +57,17 @@ async fn post_team_resource(
     resource::create_resource(&mut db, id, data.into_inner()).await
 }
 
-#[rocket::get("/<id>/allocations?<from>")]
+#[rocket::get("/<id>/allocations?<start>")]
 async fn get_team_allocations(
     user: User,
     mut db: Connection<Db>,
     id: i64,
-    from: Option<NaiveDateForm>,
+    start: Option<NaiveDateForm>,
 ) -> Result<Json<Vec<Allocation>>> {
     // Ensure team is owned by user -- todo: FORWARD or 404 instead of returning an error
     let _ = team::get_team(&user, &mut db, id).await?;
 
-    allocation::get_team_allocations(&mut db, id, from.map(|d| d.0))
+    allocation::get_team_allocations(&mut db, id, start.map(|d| d.0), None)
         .map_ok(Json)
         .await
 }

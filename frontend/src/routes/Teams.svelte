@@ -2,6 +2,7 @@
   import type { AxiosError } from "axios";
   import { Team, getTeams, Resource } from "../api/teams";
   import {
+Allocation,
     AllocationMap,
     getAllocations,
     NewResourceAllocation,
@@ -19,7 +20,7 @@
   } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
-  import { dateToYMD, idMap } from "../util";
+  import { currentWeek, dateToYMD, idMap, isCurrentWeek } from "../util";
   import { getProjects, Project } from "../api/projects";
   import { Component, getComponents } from "../api/components";
   import dayjs from "dayjs";
@@ -34,36 +35,20 @@
   $: projectMap = idMap($projectsResult.data || []);
   $: componentMap = idMap($componentsResult.data || []);
 
-  const current_week = dayjs().startOf("week").add(1, "day");
-  let start_week = current_week.add(-1, "week");
-  let days = [
-    start_week.toDate(),
-    start_week.add(1, "week").toDate(),
-    start_week.add(2, "week").toDate(),
-  ];
-
-  const fetchAllocations = async (date: Date) => {
-    return await getAllocations(date);
-  };
+  let start_week = currentWeek.add(-1, "week");
+  let days = [];
+  $: days = Array.from(Array(3).keys(), (i) => start_week.add(i, "week").toDate());
 
   function queryOptions(days): UseQueryOptions<AllocationMap, AxiosError>[] {
     return days.map((day) => {
       return {
         queryKey: ["alloc", dateToYMD(day)],
-        queryFn: () => fetchAllocations(day),
+        queryFn: () => getAllocations(day),
       };
     });
   }
 
-  $: {
-    days = [
-      start_week.toDate(),
-      start_week.add(1, "week").toDate(),
-      start_week.add(2, "week").toDate(),
-    ];
-  }
-
-  let allocResult = useQueries(queryOptions(days));
+  let allocResult;
   $: allocResult = useQueries(queryOptions(days));
 
   function advance(weeks: number) {
@@ -74,14 +59,10 @@
     dayjs().startOf("week").add(1, "day");
   }
 
-  function isCurrentWeek(date: Date): boolean {
-    return current_week.isSame(date, "day");
-  }
-
-  function resourceAlloc(data: any, date: Date, resourceId: number): ResourceAllocation[] {
+  // Takes data arg so that calling site is reactive
+  function resourceAlloc(data: AllocationMap, date: Date, resourceId: number): Allocation[] {
     const ymd = dateToYMD(date);
-    const res = String(resourceId);
-    return data?.[ymd]?.[res] || [];
+    return data?.[ymd]?.filter((r) => r.resource_id === resourceId) || [];
   }
 
   type SrcDest = {
@@ -166,15 +147,11 @@
           <thead>
             <tr>
               <th>Resource</th>
-              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[0])}
-                >{dayjs(days[0]).format("ll")}</th
-              >
-              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[1])}
-                >{dayjs(days[1]).format("ll")}</th
-              >
-              <th style="width: 25%;" class:is-selected={isCurrentWeek(days[2])}
-                >{dayjs(days[2]).format("ll")}</th
-              >
+              {#each days as day, i}
+                <th style="width: 25%;" class:is-selected={isCurrentWeek(day)}>
+                  {dayjs(day).format("MMM D")}
+                </th>
+              {/each}
             </tr>
           </thead>
           <tbody>

@@ -19,3 +19,9 @@ export function groupB<T, K extends keyof any>(list: T[], getKey: (item: T) => K
         return previous;
     }, {} as Record<K, T[]>);
 }
+
+
+export const currentWeek = dayjs().startOf("week").add(1, "day");
+export function isCurrentWeek(date: Date): boolean {
+    return currentWeek.isSame(date, "day");
+}
