@@ -11,7 +11,7 @@ deleteResourceAllocations,
     putAllocations,
   } from "../api/allocations";
   import { onMount } from "svelte";
-  import { dateToYMD } from "../util";
+  import { fmtDate } from "../util";
   import type { Resource } from "../api/teams";
 
   export let resource: Resource;
@@ -66,7 +66,7 @@ deleteResourceAllocations,
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["alloc", dateToYMD(date)]);
+        queryClient.invalidateQueries(["alloc", fmtDate(date)]);
         close();
       },
     }
@@ -76,7 +76,7 @@ deleteResourceAllocations,
     () => deleteResourceAllocations(resource.id, date),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["alloc", dateToYMD(date)]);
+        queryClient.invalidateQueries(["alloc", fmtDate(date)]);
         close();
       },
     }
@@ -100,7 +100,7 @@ deleteResourceAllocations,
   <div class="modal-background" on:click={close} />
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">{resource?.name} - week of {dateToYMD(date)}</p>
+      <p class="modal-card-title">{resource?.name} - week of {fmtDate(date)}</p>
       <button class="delete" aria-label="close" on:click={close} />
     </header>
     <div class="modal-card-body" style="min-height:200px;">

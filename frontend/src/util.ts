@@ -1,6 +1,6 @@
 import dayjs, {Dayjs} from 'dayjs';
 
-export function dateToYMD(date: Date | Dayjs) {
+export function fmtDate(date: Date | Dayjs) {
     return dayjs(date).format("YYYY-MM-DD");
 }
 
@@ -25,3 +25,20 @@ export const currentWeek = dayjs().startOf("week").add(1, "day");
 export function isCurrentWeek(date: Date): boolean {
     return currentWeek.isSame(date, "day");
 }
+
+export const waitForElement = async (selector: string, rootElement = document.documentElement) => {
+    return new Promise((resolve) => {
+        const observer = new MutationObserver(() => {
+            const element = document.querySelector(selector);
+            if (element) {
+                observer.disconnect();
+                resolve(element);
+            }
+        });
+
+        observer.observe(rootElement, {
+            childList: true,
+            subtree: true,
+        });
+    });
+};

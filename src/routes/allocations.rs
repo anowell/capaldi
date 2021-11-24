@@ -9,6 +9,7 @@ use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use std::collections::HashMap;
 
+
 #[rocket::get("/?<start>&<end>&<all>")]
 async fn query_allocations(
     user: User,
@@ -41,6 +42,8 @@ async fn query_allocations(
 
     Ok(Json(alloc_map))
 }
+
+
 
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![query_allocations]

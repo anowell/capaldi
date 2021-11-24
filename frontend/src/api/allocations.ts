@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { dateToYMD } from '../util';
+import { fmtDate } from '../util';
 
 export interface Allocation {
     id: number,
@@ -39,30 +39,30 @@ export interface NewResourceAllocationPretty {
 }
 
 export async function getAllocations(date: Date, all: boolean = false): Promise<AllocationMap> {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     const { data } = await axios.get<AllocationMap>(`/api/allocations?start=${ymd}&all=${all}`);
     return data;
 }
 
 export async function getResourceAllocations(resource_id: number, date: Date): Promise<Allocation[]> {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     const { data } = await axios.get<Allocation[]>(`/api/resources/${resource_id}/allocations?start=${ymd}`);
     return data;
 }
 
 export async function putAllocations(resource_id: number, date: Date, allocations: NewResourceAllocation[]): Promise<any> {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     const { data } = await axios.put(`/api/resources/${resource_id}/allocations/${ymd}`, allocations);
     return data;
 }
 
 export async function deleteResourceAllocations(resource_id: number, date: Date): Promise<void> {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     const { data } = await axios.delete(`/api/resources/${resource_id}/allocations/${ymd}`);
 }
 
 export async function getProjectAllocations(project_id: number, date: Date): Promise<Allocation[]> {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     const { data } = await axios.get<Allocation[]>(`/api/projects/${project_id}/allocations?start=${ymd}`);
     return data;
 }

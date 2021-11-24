@@ -20,11 +20,11 @@ Allocation,
   } from "@sveltestack/svelte-query";
   import AllocationModal from "../components/AllocationModal.svelte";
   import ResourceModal from "../components/ResourceModal.svelte";
-  import { currentWeek, dateToYMD, idMap, isCurrentWeek } from "../util";
+  import Pagination from "../components/Pagination.svelte";
+  import { currentWeek, fmtDate, idMap, isCurrentWeek } from "../util";
   import { getProjects, Project } from "../api/projects";
   import { Component, getComponents } from "../api/components";
   import dayjs from "dayjs";
-  import { timeUntilStale } from "@sveltestack/svelte-query/dist/queryCore/core/utils";
 
   const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);
   const projectsResult = useQuery<Project[], AxiosError>("projects", getProjects);
@@ -42,7 +42,7 @@ Allocation,
   function queryOptions(days): UseQueryOptions<AllocationMap, AxiosError>[] {
     return days.map((day) => {
       return {
-        queryKey: ["alloc", dateToYMD(day)],
+        queryKey: ["alloc", fmtDate(day)],
         queryFn: () => getAllocations(day),
       };
     });
@@ -61,7 +61,7 @@ Allocation,
 
   // Takes data arg so that calling site is reactive
   function resourceAlloc(data: AllocationMap, date: Date, resourceId: number): Allocation[] {
-    const ymd = dateToYMD(date);
+    const ymd = fmtDate(date);
     return data?.[ymd]?.filter((r) => r.resource_id === resourceId) || [];
   }
 
@@ -87,7 +87,7 @@ Allocation,
     },
     {
       onSuccess: (resData, { src, dest }) => {
-        queryClient.invalidateQueries(["alloc", dateToYMD(dest)]);
+        queryClient.invalidateQueries(["alloc", fmtDate(dest)]);
       },
     }
   );
@@ -129,10 +129,7 @@ Allocation,
   <ResourceModal bind:is_active={res_modal_active} team_id={res_modal_team_id} />
 
   <div class="column is-three-quarters is-offset-one-quarter">
-    <nav class="pagination is-small" role="navigation" aria-label="pagination">
-      <button on:click={() => advance(-1)} class="pagination-previous">Previous</button>
-      <button on:click={() => advance(1)} class="pagination-next">Next</button>
-    </nav>
+    <Pagination on:previous={() => advance(-1)} on:next={() => advance(1)} />
   </div>
 
   {#if $teamsResult.status === "loading"}
@@ -204,11 +201,9 @@ Allocation,
   {/if}
 
   <div class="column is-three-quarters is-offset-one-quarter">
-    <nav class="pagination is-small" role="navigation" aria-label="pagination">
-      <button on:click={() => advance(-1)} class="pagination-previous">Previous</button>
-      <button on:click={() => advance(1)} class="pagination-next">Next</button>
-    </nav>
+    <Pagination on:previous={() => advance(-1)} on:next={() => advance(1)} />
   </div>
+
 </div>
 
 <style>

@@ -30,6 +30,8 @@ pub struct NewResourceAllocation {
     pub percent: i64,
 }
 
+
+
 pub async fn get_allocations(
     db: &mut Connection<Db>,
     start: Option<NaiveDate>,

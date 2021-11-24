@@ -63,6 +63,7 @@ fn rocket() -> _ {
         .mount("/api/session", routes::session::routes())
         .mount("/api/teams", routes::teams::routes())
         .mount("/api/allocations", routes::allocations::routes())
+        .mount("/api/aggregates", routes::aggregates::routes())
         .mount("/api/projects", routes::projects::routes())
         .mount("/api/resources", routes::resources::routes())
         .mount("/api/components", routes::components::routes())
