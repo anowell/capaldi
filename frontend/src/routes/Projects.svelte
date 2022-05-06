@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { AxiosError } from "axios";
-    import { Project, getProjects } from "../api/projects";
-    import { useQueries, useQuery, UseQueryOptions } from "@sveltestack/svelte-query";
+    import { getProjects, type Project } from "../api/projects";
+    import { useQueries, useQuery, type UseQueryOptions } from "@sveltestack/svelte-query";
     import { currentWeek, fmtDate, isCurrentWeek, waitForElement } from "../util";
     import dayjs from "dayjs";
     // import { Allocation, AllocationMap, getAllocations } from "../api/allocations";
@@ -9,7 +9,7 @@
     import Pagination from "../components/Pagination.svelte";
 
     import { onMount, tick } from "svelte";
-import { getProjectAggregates, ProjectAggregate } from "../api/aggregates";
+    import { getProjectAggregates, type ProjectAggregate } from "../api/aggregates";
 
     let start_week = currentWeek.add(-1, "week");
     let days = [];

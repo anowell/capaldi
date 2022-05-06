@@ -68,12 +68,12 @@ export default {
       browser: true,
       dedupe: ["svelte"],
     }),
-    commonjs(),
     json(),
     typescript({
       sourceMap: !production,
       inlineSources: !production,
     }),
+    commonjs(),
     // swc({
     //   jsc: {
     //     parser: {

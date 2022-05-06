@@ -3,7 +3,7 @@
   import Projects from "./routes/Projects.svelte";
   import Groups from "./routes/Teams.svelte";
   import { QueryClient, QueryClientProvider, useQuery } from "@sveltestack/svelte-query";
-  import { User, postSession } from "./api/session";
+  import { type User, postSession } from "./api/session";
 
   let user: User;
   let loggedIn = false;

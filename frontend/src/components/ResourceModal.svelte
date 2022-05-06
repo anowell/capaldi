@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { AxiosError } from "axios";
-    import { Resource, Team, getTeams, postResource, NewResource } from "../api/teams";
-    import { Project, getProjects } from "../api/projects";
+    import { type Resource, type Team, type NewResource, getTeams, postResource } from "../api/teams";
+    import { type Project, getProjects } from "../api/projects";
     import { useQuery, useMutation, useQueryClient } from "@sveltestack/svelte-query";
 
     export let is_active: boolean;
@@ -71,7 +71,7 @@
             <button
                 type="submit"
                 class="button is-success"
-                on:click={$createResource.mutate(resource)}>Create</button
+                on:click={() => $createResource.mutate(resource)}>Create</button
             >
             <button class="button" on:click={closeModal}>Cancel</button>
         </footer>

@@ -1,20 +1,19 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import { Team, getTeams, Resource } from "../api/teams";
+  import { type Team, getTeams, type Resource } from "../api/teams";
   import {
-Allocation,
-    AllocationMap,
+    type Allocation,
+    type AllocationMap,
+    type NewResourceAllocation,
+    type NewResourceAllocationPretty,
+    type ResourceAllocation,
     getAllocations,
-    NewResourceAllocation,
-    NewResourceAllocationPretty,
     putAllocations,
-    ResourceAllocation,
   } from "../api/allocations";
   import {
+    type UseQueryOptions,
     useQuery,
-    Query,
     useQueries,
-    UseQueryOptions,
     useMutation,
     useQueryClient,
   } from "@sveltestack/svelte-query";
@@ -22,8 +21,8 @@ Allocation,
   import ResourceModal from "../components/ResourceModal.svelte";
   import Pagination from "../components/Pagination.svelte";
   import { currentWeek, fmtDate, idMap, isCurrentWeek } from "../util";
-  import { getProjects, Project } from "../api/projects";
-  import { Component, getComponents } from "../api/components";
+  import { type Project, getProjects } from "../api/projects";
+  import { type Component, getComponents } from "../api/components";
   import dayjs from "dayjs";
 
   const teamsResult = useQuery<Team[], AxiosError>("teams", getTeams);

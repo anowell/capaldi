@@ -1,16 +1,15 @@
 <script lang="ts">
   import type { AxiosError } from "axios";
-  import { getProjects, Project } from "../api/projects";
-  import { getComponents, Component } from "../api/components";
+  import { getProjects, type Project } from "../api/projects";
+  import { getComponents, type Component } from "../api/components";
   import { useMutation, useQuery, useQueryClient } from "@sveltestack/svelte-query";
   import AutoComplete from "./AutoComplete.svelte";
   import {
-deleteResourceAllocations,
-    NewResourceAllocation,
-    NewResourceAllocationPretty,
+    type NewResourceAllocation,
+    type NewResourceAllocationPretty,
+    deleteResourceAllocations,
     putAllocations,
   } from "../api/allocations";
-  import { onMount } from "svelte";
   import { fmtDate } from "../util";
   import type { Resource } from "../api/teams";
 

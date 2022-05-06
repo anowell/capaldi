@@ -15,3 +15,4 @@ export async function getProject(id: number): Promise<Project> {
     const { data } = await axios.get<Project>(`/api/projects/${id}`);
     return data;
 }
+
