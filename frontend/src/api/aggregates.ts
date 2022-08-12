@@ -7,9 +7,11 @@ export interface ProjectAggregate {
     resources: number,
 }
 
-export async function getProjectAggregates(date: Date): Promise<ProjectAggregate[]> {
-    const ymd = fmtDate(date);
-    const { data } = await axios.get<ProjectAggregate[]>(`/api/aggregates/projects?start=${ymd}`);
+export async function getProjectAggregates(start: Date, end: Date = undefined): Promise<ProjectAggregate[]> {
+    if (end === undefined) {
+        end = start
+    }
+
+    const { data } = await axios.get<ProjectAggregate[]>(`/api/aggregates/projects?start=${fmtDate(start)}&end=${fmtDate(end)}`);
     return data;
 }
-

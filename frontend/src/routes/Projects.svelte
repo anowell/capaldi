@@ -11,6 +11,9 @@
     import { onMount, tick } from "svelte";
     import { getProjectAggregates, type ProjectAggregate } from "../api/aggregates";
 
+    console.log("start of isoWeek", dayjs().startOf('isoWeek'));
+    console.log("start of week", dayjs().startOf('week'));
+    console.log("currentWeek", currentWeek);
     let start_week = currentWeek.add(-1, "week");
     let days = [];
     $: days = Array.from(Array(5).keys(), (i) => start_week.add(i, "week").toDate());
@@ -27,7 +30,7 @@
     function queryOptions(days): UseQueryOptions<ProjectAggregate[], AxiosError>[] {
         return days.map((day) => {
             return {
-                queryKey: ["projAgg", fmtDate(day)],
+                queryKey: ["projDayAgg", fmtDate(day)],
                 queryFn: () => getProjectAggregates(day),
             };
         });

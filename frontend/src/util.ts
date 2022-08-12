@@ -21,7 +21,8 @@ export function groupB<T, K extends keyof any>(list: T[], getKey: (item: T) => K
 }
 
 
-export const currentWeek = dayjs().startOf("week").add(1, "day");
+// isoWeek: 1 through 7, beginning with Monday and ending with Sunday
+export const currentWeek = dayjs().startOf("isoWeek");
 export function isCurrentWeek(date: Date): boolean {
     return currentWeek.isSame(date, "day");
 }

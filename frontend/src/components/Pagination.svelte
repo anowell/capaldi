@@ -4,7 +4,7 @@
     const dispatch = createEventDispatcher();
 </script>
 
-<nav class="pagination is-small" role="navigation" aria-label="pagination">
+<nav class="pagination is-small" aria-label="pagination">
     <button on:click={() => dispatch('previous')} class="pagination-previous">Previous</button>
     <button on:click={() => dispatch('next')} class="pagination-next">Next</button>
 </nav>

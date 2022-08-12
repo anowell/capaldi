@@ -35,9 +35,10 @@
         </header>
         <div class="modal-card-body">
             <div class="field">
-                <label class="label">Name</label>
+                <label class="label" for="resource-name">Name</label>
                 <div class="control">
                     <input
+                        id="resource-name"
                         class="input"
                         type="text"
                         placeholder="Name"
@@ -47,10 +48,10 @@
             </div>
 
             <div class="field">
-                <label class="label">Role</label>
+                <label class="label" for="resource-role">Role</label>
                 <div class="control">
                     <div class="select">
-                        <select bind:value={resource.role_id}>
+                        <select bind:value={resource.role_id} id="resource-role">
                             <option value={1}>TODO ROLE #1</option>
                             <option value={2}>TODO ROLE #2</option>
                         </select>
