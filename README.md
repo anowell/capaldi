@@ -62,6 +62,9 @@ just curl /teams
 Starting capaldi frontend:
 
 ```shell
+cd frontend
+pnpm install
+cd ..
 just dev-client
 
 # Open localhost:8000 in browser
